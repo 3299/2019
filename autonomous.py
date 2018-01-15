@@ -1,7 +1,6 @@
 """
 Runs the auto routine. Called once.
 """
-from networktables import NetworkTable
 import time
 import wpilib
 

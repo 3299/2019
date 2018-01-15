@@ -3,7 +3,6 @@ Main logic code
 """
 import wpilib
 import time
-from networktables import NetworkTable
 
 from inits import Component
 import helpers
@@ -15,13 +14,13 @@ from components.bumpPop import BumpPop
 from components.shooter import Shooter
 from components.groundGear import GroundGear
 
-from components.vision import Vision
+#from components.vision import Vision
 from autonomous import Autonomous
 
 class Randy(wpilib.SampleRobot):
     def robotInit(self):
         # init cameras
-        wpilib.CameraServer.launch('cameras.py:main')
+        #wpilib.CameraServer.launch('cameras.py:main')
 
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
@@ -32,13 +31,13 @@ class Randy(wpilib.SampleRobot):
         self.groundGear        = GroundGear(self.C.groundSol, self.C.groundGearM)
         self.gearSol           = GearSol(self.C.gearSol)
         self.shooter           = Shooter(self.C.shooterM, self.C.hopperM, self.C.shooterS, self.C.hopperS)
-        self.vision            = Vision(self.drive, self.C.greenLEDR)
-        self.autonomousRoutine = Autonomous(self.drive, self.bumpPop, self.gearSol, self.groundGear, self.vision)
+        #self.vision            = Vision(self.drive, self.C.greenLEDR)
+        #self.autonomousRoutine = Autonomous(self.drive, self.bumpPop, self.gearSol, self.groundGear, self.vision)
 
         # Smart Dashboard
-        self.sd = NetworkTable.getTable('SmartDashboard')
-        self.sd.putBoolean('autoAngle', False)
-        self.sd.putBoolean('isLeft', False)
+    #    self.sd = NetworkTable.getTable('SmartDashboard')
+    #    self.sd.putBoolean('autoAngle', False)
+#        self.sd.putBoolean('isLeft', False)
 
         # Joysticks or xBox controller?
         self.controller = 'joysticks' # || joysticks
@@ -68,7 +67,7 @@ class Randy(wpilib.SampleRobot):
 
             elif (self.controller == 'xbox'):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
-
+            #sprint(self.C.gyroS.getAngle())
             # Back gear
             if (self.controller == 'joysticks'):
                 if (self.C.middleJ.getRawButton(4)):
@@ -121,10 +120,10 @@ class Randy(wpilib.SampleRobot):
 
     def test(self):
         """This function is called periodically during test mode."""
-
+        self.C.gyroS.reset()
     def autonomous(self):
         """Runs once during autonomous."""
-        self.autonomousRoutine.run() # see autonomous.py
+    #    self.autonomousRoutine.run() # see autonomous.py
 
 if __name__ == "__main__":
     wpilib.run(Randy)

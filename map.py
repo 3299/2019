@@ -5,12 +5,12 @@ Defines port numbers for motors and sensors.
 class Map(object):
     def __init__(self):
         # Motors have suffix 'M'. All motors use PWM.
-        self.frontLeftM  = 3
-        self.frontRightM = 1
-        self.backLeftM   = 7
-        self.backRightM  = 0
+        self.frontLeftM  = 2
+        self.frontRightM = 3
+        self.backLeftM   = 0
+        self.backRightM  = 1
 
-        self.climbM      = 2
+        self.climbM      = 7
         self.collectorM  = 5
         self.shooterM    = 9
         self.hopperM     = 8
