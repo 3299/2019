@@ -14,7 +14,7 @@ from autonomous import Autonomous
 class Randy(wpilib.SampleRobot):
     def robotInit(self):
         # init cameras
-        #wpilib.CameraServer.launch('cameras.py:main')
+        wpilib.CameraServer.launch()
 
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
