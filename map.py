@@ -9,3 +9,6 @@ class Map(object):
         self.frontRightM = 3
         self.backLeftM   = 0
         self.backRightM  = 1
+
+        # Sensors have suffix 'S'. Gyro uses SPI, everything else uses the DIO.
+        self.gyroS = 0

@@ -14,3 +14,6 @@ class Component(object):
         self.driveTrain = {'frontLeft': wpilib.Spark(Mapping.frontLeftM), 'backLeft': wpilib.Spark(Mapping.backLeftM), 'frontRight': wpilib.Spark(Mapping.frontRightM), 'backRight': wpilib.Spark(Mapping.backRightM)}
         self.driveTrain['frontLeft'].setInverted(True)
         self.driveTrain['backLeft'].setInverted(True)
+
+        # Init sensors
+        self.gyroS = wpilib.ADXRS450_Gyro(Mapping.gyroS)

@@ -43,7 +43,6 @@ Given a value and power, this raises the value
 to the power, then negates it if the value was
 originally negative.
 '''
-
 def raiseKeepSign(value, power):
     newValue = value ** power
 
@@ -83,6 +82,11 @@ def rotateVector(x, y, angle):
     sinA = math.sin(angle)
     return (x * cosA - y * sinA), (x * sinA + y * cosA)
 
-def normalizeAngle(angle):
-    '''Normalize angle to [-180,180]'''
-    return ((angle + 180) % 360) - 180.0
+'''
+Adds deadband to a joystick.
+'''
+def deadband(value, ignoreRange):
+    if (abs(value) < ignoreRange and abs(value) > -ignoreRange):
+        return 0
+    else:
+        return value
