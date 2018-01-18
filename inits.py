@@ -17,3 +17,7 @@ class Component(object):
 
         # Init sensors
         self.gyroS = wpilib.ADXRS450_Gyro(Mapping.gyroS)
+
+
+        # Init I2C for communication with Arduino
+        self.arduino = wpilib.I2C(wpilib.I2C.Port.kOnboard, 4)

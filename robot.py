@@ -10,6 +10,7 @@ import helpers
 from components.chassis import Chassis
 
 from autonomous import Autonomous
+from components.lights import Lights
 
 class Randy(wpilib.SampleRobot):
     def robotInit(self):
@@ -22,7 +23,7 @@ class Randy(wpilib.SampleRobot):
         self.drive             = Chassis(self.C.driveTrain, self.C.gyroS)
 
         self.autonomousRoutine = Autonomous(self.drive)
-
+        self.lights = Lights(self.C.arduino)
         # Joysticks or xBox controller?
         self.controller = 'joysticks' # || xbox
 
@@ -39,6 +40,7 @@ class Randy(wpilib.SampleRobot):
             '''
             Components
             '''
+            self.lights.rainbow()
             # Drive
             if (self.controller == 'joysticks'):
                 self.drive.run(self.C.leftJ.getX(),
@@ -56,7 +58,7 @@ class Randy(wpilib.SampleRobot):
 
     def test(self):
         """This function is called periodically during test mode."""
-        
+
     def autonomous(self):
         """Runs once during autonomous."""
         self.autonomousRoutine.run() # see autonomous.py

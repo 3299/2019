@@ -6,7 +6,7 @@ loop on each wheel.
 import helpers
 import wpilib
 import math
-
+from networktables import NetworkTables
 
 class Chassis(object):
     def __init__(self, drive, gyro):
@@ -14,6 +14,10 @@ class Chassis(object):
         self.gyro           = gyro
         self.jDeadband      = 0.05
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
+        self.sd             = NetworkTables.getTable('SmartDashboard')
+        self.sd.putNumber('P', 0.022)
+        self.sd.putNumber('I', 0)
+        self.sd.putNumber('D', 0)
 
         self.pidAngle.setInputRange(-180.0, 180.0)
         self.pidAngle.setOutputRange(-1.0, 1.0)
@@ -29,15 +33,19 @@ class Chassis(object):
 
     def arcade(self, x1, y1, x2):
         # rotation curve
-        rotation = helpers.raiseKeepSign(helpers.deadband(-x2, self.jDeadband), 2)
+        rotation = helpers.raiseKeepSign(helpers.deadband(-x2 * 0.8, self.jDeadband), 2) 
         self.cartesian(x1, y1, rotation)
 
     def cartesian(self, x, y, rotation):
         """Uses the gryo to compensate for bad design :P"""
+        self.pidAngle.setP(self.sd.getNumber("P", 0.03))
+        self.pidAngle.setI(self.sd.getNumber("I", 0))
+        self.pidAngle.setD(self.sd.getNumber("D", 0.1))
         if rotation == 0:
             # reset gryo when rotation stops
             if (self.wasRotating):
-                self.gryo.reset()
+                print("gyro reset! :D")
+                self.gyro.reset()
                 self.wasRotating = False
 
             # PID controller
@@ -47,10 +55,9 @@ class Chassis(object):
             rotation = -self.pidRotateRate
         else:
             # if there's non-zero rotation input from the joystick, don't run the PID loop
-            self.pidAngle.disable()
+            #self.pidAngle.disable()
             self.wasRotating = True
 
-        print(rotation)
 
         # asign speeds
         speeds = [0] * 4
@@ -67,10 +74,10 @@ class Chassis(object):
                     speeds[i] = maxSpeed / speeds[i]
 
         # set scaled speeds
-        self.drive['frontLeft'].set(speeds[0])
-        self.drive['frontRight'].set(speeds[1])
-        self.drive['backLeft'].set(speeds[2])
-        self.drive['backRight'].set(speeds[3])
+        self.drive['frontLeft'].set(math.sin(speeds[0]))
+        self.drive['frontRight'].set(math.sin(speeds[1]))
+        self.drive['backLeft'].set(math.sin(speeds[2]))
+        self.drive['backRight'].set(math.sin(speeds[3]))
 
     def polar(self, power, direction, rotation):
         power = power * math.sqrt(2.0)
