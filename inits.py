@@ -20,4 +20,4 @@ class Component(object):
 
 
         # Init I2C for communication with Arduino
-        self.arduino = wpilib.I2C(wpilib.I2C.Port.kOnboard, 4)
+        self.arduino = wpilib.Spark(Mapping.arduino)
