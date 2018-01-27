@@ -12,3 +12,4 @@ class Map(object):
 
         # Sensors have suffix 'S'. Gyro uses SPI, everything else uses the DIO.
         self.gyroS = 0
+        self.arduino = 9
