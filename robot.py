@@ -52,11 +52,11 @@ class Randy(wpilib.SampleRobot):
             elif (self.controller == 'xbox'):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-            wpilib.Timer.delay(0.002) # wait for a motor update time
+            #wpilib.Timer.delay(0.002) # wait for a motor update time
 
     def test(self):
         """This function is called periodically during test mode."""
-        
+
     def autonomous(self):
         """Runs once during autonomous."""
         self.autonomousRoutine.run() # see autonomous.py

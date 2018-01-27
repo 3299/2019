@@ -1,7 +1,5 @@
 """
 Drives. Can accept input from joysticks or values [-1, 1].
-Uses the wheel-attached encoders as input for a threaded PID
-loop on each wheel.
 """
 import helpers
 import wpilib
@@ -91,24 +89,8 @@ class Chassis(object):
         self.drive['backLeft'].set(speeds[2])
         self.drive['backRight'].set(speeds[3])
 
-    def driveToAngle(self, power, angle, continuous):
-        self.gyro.reset()
-        self.pidAngle.setSetpoint(angle)
-        self.pidAngle.enable()
-        self.pidAngle.setContinuous(continuous)
-
-        if (continuous == True): # if true, runs continuously (for driving straight)
-            print(self.pidRotateRate)
-            self.cartesian(0, -power, -self.pidRotateRate)
-        else:
-            while (abs(self.pidAngle.getError()) > 2):
-                print(self.pidAngle.getError())
-                self.cartesian(0, 0, -self.pidRotateRate)
-
-            self.pidAngle.disable()
-            self.cartesian(0, 0, 0)
-            self.gyro.reset()
-            return;
-
     def pidWrite(self, value):
         self.pidRotateRate = value
+
+    def curve(self, value):
+        return (math.sin(value) / math.sin(1));
