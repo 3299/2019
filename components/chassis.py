@@ -33,7 +33,7 @@ class Chassis(object):
 
     def arcade(self, x1, y1, x2):
         # rotation curve
-        rotation = helpers.raiseKeepSign(helpers.deadband(-x2 * 0.8, self.jDeadband), 2) 
+        rotation = helpers.raiseKeepSign(helpers.deadband(-x2 * 0.8, self.jDeadband), 2)
         self.cartesian(x1, y1, rotation)
 
     def cartesian(self, x, y, rotation):

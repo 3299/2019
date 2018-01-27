@@ -17,7 +17,7 @@ class Lights(object):
             self.arduinoC.set(-0.3)
         elif(color == 'red' and fade == True and fast == False):
             self.arduinoC.set(-0.4)
-        elif(color == 'blue' and fade == False and fast == False:)
+        elif(color == 'blue' and fade == False and fast == False):
             self.arduinoC.set(-0.5)
         elif(color == 'blue' and fade == False and fast == True):
             self.arduinoC.set(-0.6)

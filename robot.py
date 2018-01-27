@@ -25,7 +25,7 @@ class Randy(wpilib.SampleRobot):
         self.autonomousRoutine = Autonomous(self.drive)
         self.lights = Lights(self.C.arduino)
         # Joysticks or xBox controller?
-        self.controller = 'joysticks' # || xbox
+        self.controller = 'xbox' # || xbox
 
         if (self.controller == 'joysticks'):
             self.C.leftJ = wpilib.Joystick(0)
@@ -40,9 +40,11 @@ class Randy(wpilib.SampleRobot):
             '''
             Components
             '''
-            self.lights.rainbow()
             # Drive
             if (self.controller == 'joysticks'):
+                self.C.arduino.set(self.C.rightJ.getY())
+                #moved into if due to it interfering with xbox controller
+
                 self.drive.run(self.C.leftJ.getX(),
                                self.C.leftJ.getY(),
                                self.C.middleJ.getX(),
