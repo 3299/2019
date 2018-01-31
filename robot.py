@@ -20,10 +20,11 @@ class Randy(wpilib.SampleRobot):
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
         # Setup subsystems
-        self.drive             = Chassis(self.C.driveTrain, self.C.gyroS)
+        self.drive = Chassis(self.C.driveTrain, self.C.gyroS)
+        self.lights = Lights()
 
         self.autonomousRoutine = Autonomous(self.drive)
-        self.lights = Lights(self.C.arduino)
+        
         # Joysticks or xBox controller?
         self.controller = 'xbox' # || xbox
 
@@ -42,9 +43,6 @@ class Randy(wpilib.SampleRobot):
             '''
             # Drive
             if (self.controller == 'joysticks'):
-                self.C.arduino.set(self.C.rightJ.getY())
-                #moved into if due to it interfering with xbox controller
-
                 self.drive.run(self.C.leftJ.getX(),
                                self.C.leftJ.getY(),
                                self.C.middleJ.getX(),
@@ -56,7 +54,10 @@ class Randy(wpilib.SampleRobot):
             elif (self.controller == 'xbox'):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-            #wpilib.Timer.delay(0.002) # wait for a motor update time
+            # Lights
+            self.lights.stagger('blue', True, 255)
+
+            wpilib.Timer.delay(0.002) # wait for a motor update time
 
     def test(self):
         """This function is called periodically during test mode."""

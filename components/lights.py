@@ -1,30 +1,24 @@
-import serial
+import json
+import wpilib
+from components.i2cstub import I2CStub
 
 """
 Facilitates communication between roboRIO and Arduino (for lights)
 """
 class Lights(object):
-    def __init__(self, arduinoC):
-        self.arduinoC = arduinoC
+    def __init__(self):
+        # Init I2C for communication with Arduino
+        self.arduinoC = wpilib.I2C(wpilib.I2C.Port.kOnboard, 4, I2CStub())
+
     def rainbow(self):
         self.arduinoC.set(0)
-    def stagger(self, color, fade, fast):
-        if(color == 'red' and fade == False and fast == False):
-            self.arduinoC.set(-0.1)
-        elif(color == 'red' and fade == False and fast == True):
-            self.arduinoC.set(-0.2)
-        elif(color == 'red' and fade == True and fast == True):
-            self.arduinoC.set(-0.3)
-        elif(color == 'red' and fade == True and fast == False):
-            self.arduinoC.set(-0.4)
-        elif(color == 'blue' and fade == False and fast == False):
-            self.arduinoC.set(-0.5)
-        elif(color == 'blue' and fade == False and fast == True):
-            self.arduinoC.set(-0.6)
-        elif(color == 'blue' and fade == True and fast == True):
-            self.arduinoC.set(-0.7)
-        elif(color == 'blue' and fade == True and fast == False):
-            self.arduinoC.set(-0.8)
+    def stagger(self, color, fade, speed):
+        #data = {'effect': 'stagger', 'color': color, 'fade': fade, 'speed': speed}
+        #try:
+        #self.arduinoC.transaction(json.dumps(data).encode('ASCII'), 0)
+        self.arduinoC.transaction(b'sbt255\n', 0)
+        #except:
+        #    pass
 
     def flash(self, color):
         self.arduinoC.set(1)
