@@ -24,7 +24,7 @@ class Randy(wpilib.SampleRobot):
         self.lights = Lights()
 
         self.autonomousRoutine = Autonomous(self.drive)
-        
+
         # Joysticks or xBox controller?
         self.controller = 'xbox' # || xbox
 
@@ -34,6 +34,7 @@ class Randy(wpilib.SampleRobot):
             self.C.rightJ = wpilib.Joystick(2)
         elif (self.controller == 'xbox'):
             self.C.joystick = wpilib.XboxController(0)
+            self.C.leftJ = wpilib.Joystick(1)
 
     def operatorControl(self):
         # runs when robot is enabled
@@ -55,7 +56,12 @@ class Randy(wpilib.SampleRobot):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
             # Lights
-            self.lights.stagger('blue', True, 255)
+            if (self.C.leftJ.getRawButton(6)):
+                self.lights.stagger('blue', True, 255)
+            elif (self.C.leftJ.getRawButton(7)):
+                self.lights.rainbow()
+            elif (self.C.leftJ.getRawButton(8)):
+                self.lights.flash('red', True, 500)
 
             wpilib.Timer.delay(0.002) # wait for a motor update time
 
