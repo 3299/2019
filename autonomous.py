@@ -11,7 +11,7 @@ class Autonomous(object):
 
     def run(self):
         print('Autonomous has run')
-        if (hal.isSimulation == False):
+        if (hal.isSimulation() == False):
             print(self.DriverStation.getGameSpecificMessage())
 
         #self.drive.straight(2, 0.3)
