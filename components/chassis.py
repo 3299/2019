@@ -4,6 +4,8 @@ Drives. Can accept input from joysticks or values [-1, 1].
 import helpers
 import wpilib
 import math
+import time
+import hal
 from networktables import NetworkTables
 
 class Chassis(object):
@@ -94,6 +96,26 @@ class Chassis(object):
         self.drive['backLeft'].set(speeds[2])
         self.drive['backRight'].set(speeds[3])
 
+
+    def driveToAngle(self, power, angle, continuous):
+        self.gyro.reset()
+        self.pidAngle.setSetpoint(angle)
+        self.pidAngle.enable()
+        self.pidAngle.setContinuous(continuous)
+
+        if (continuous == True): # if true, runs continuously (for driving straight)
+            print(self.pidRotateRate)
+            self.cartesian(0, -power, -self.pidRotateRate)
+        else:
+            while (abs(self.pidAngle.getError()) > 2):
+                print(self.pidAngle.getError())
+                self.cartesian(0, 0, -self.pidRotateRate)
+
+            self.pidAngle.disable()
+            self.cartesian(0, 0, 0)
+            self.gyro.reset()
+            return;
+
     def pidWrite(self, value):
         self.pidRotateRate = value
 
@@ -102,3 +124,13 @@ class Chassis(object):
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
         return (math.sin(value) / math.sin(1));
+
+    def straight(self, duration, power):
+        if hal.isSimulation() == False:
+            startTime = time.clock()
+            while (time.clock() - startTime < duration):
+                self.cartesian(0, power, 0)
+                print(time.clock())
+
+            # Stop
+            self.cartesian(0, 0, 0)
