@@ -13,12 +13,13 @@ class Chassis(object):
         self.drive          = drive
         self.gyro           = gyro
         self.jDeadband      = 0.05
+
+        self.usePID         = False
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('P', 0.022)
         self.sd.putNumber('I', 0)
         self.sd.putNumber('D', 0)
-
         self.pidAngle.setInputRange(-180.0, 180.0)
         self.pidAngle.setOutputRange(-1.0, 1.0)
         self.pidAngle.setAbsoluteTolerance(5)
@@ -38,23 +39,24 @@ class Chassis(object):
 
     def cartesian(self, x, y, rotation):
         """Uses the gryo to compensate for bad design :P"""
-        self.pidAngle.setP(self.sd.getNumber("P", 0.03))
-        self.pidAngle.setI(self.sd.getNumber("I", 0))
-        self.pidAngle.setD(self.sd.getNumber("D", 0.1))
-        if rotation == 0:
-            # reset gryo when rotation stops
-            if (self.wasRotating):
-                self.gyro.reset()
-                self.wasRotating = False
+        if (self.usePID != False):
+            self.pidAngle.setP(self.sd.getNumber("P", 0.03))
+            self.pidAngle.setI(self.sd.getNumber("I", 0))
+            self.pidAngle.setD(self.sd.getNumber("D", 0.1))
+            if rotation == 0:
+                # reset gryo when rotation stops
+                if (self.wasRotating):
+                    self.gyro.reset()
+                    self.wasRotating = False
 
-            # PID controller
-            self.pidAngle.setSetpoint(0)
-            self.pidAngle.enable()
-            self.pidAngle.setContinuous(True)
-            rotation = -self.pidRotateRate
-        else:
-            # if there's non-zero rotation input from the joystick, don't run the PID loop
-            self.wasRotating = True
+                # PID controller
+                self.pidAngle.setSetpoint(0)
+                self.pidAngle.enable()
+                self.pidAngle.setContinuous(True)
+                rotation = -self.pidRotateRate
+            else:
+                # if there's non-zero rotation input from the joystick, don't run the PID loop
+                self.wasRotating = True
 
 
         # assign speeds
@@ -64,12 +66,19 @@ class Chassis(object):
         speeds[2] = -x - y - rotation
         speeds[3] = -x + y - rotation
 
-        # TODO: this will currrently scale speeds if over `1`, but not if under `-1`
-        if (max(speeds) > 1):
-            maxSpeed = max(speeds)
+        # scales all speeds if one is in range
+        # (-inf, -1) U (1, inf)
+        maxSpeed = max(speeds)
+        minSpeed = min(speeds)
+
+        if (maxSpeed > 1):
             for i in range (0, 4):
                 if (speeds[i] != 0):
-                    speeds[i] = maxSpeed / speeds[i]
+                    speeds[i] = speeds[i] / maxSpeed
+        elif (minSpeed < -1):
+            for i in range(0, 4):
+                if (speeds[i] != 0):
+                    speeds[i] =  - (speeds[i] / minSpeed)
 
         # set scaled speeds
         self.drive['frontLeft'].set(self.curve(speeds[0]))

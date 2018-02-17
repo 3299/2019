@@ -12,8 +12,11 @@ class Component(object):
 
         # Init drivetrain
         self.driveTrain = {'frontLeft': wpilib.Spark(Mapping.frontLeftM), 'backLeft': wpilib.Spark(Mapping.backLeftM), 'frontRight': wpilib.Spark(Mapping.frontRightM), 'backRight': wpilib.Spark(Mapping.backRightM)}
-        #self.driveTrain['frontLeft'].setInverted(True)
-        #self.driveTrain['backLeft'].setInverted(True)
+
+        # Init motors
+        self.elevatorM = wpilib.Spark(Mapping.elevatorM)
 
         # Init sensors
-        self.gyroS = wpilib.ADXRS450_Gyro(Mapping.gyroS)
+        self.gyroS = wpilib.AnalogGyro(Mapping.gyroS)
+        self.elevatorS = wpilib.Encoder(7, 8)
+        self.elevatorS.setDistancePerPulse(0.064)

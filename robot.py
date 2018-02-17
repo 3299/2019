@@ -11,6 +11,8 @@ from components.chassis import Chassis
 
 from autonomous import Autonomous
 from components.lights import Lights
+from components.metabox import MetaBox
+from components.pdb import Power
 
 class Randy(wpilib.SampleRobot):
     def robotInit(self):
@@ -22,6 +24,8 @@ class Randy(wpilib.SampleRobot):
         # Setup subsystems
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS)
         self.lights = Lights()
+        self.metabox = MetaBox(self.C.elevatorS, self.C.elevatorM)
+        self.power = Power()
 
         self.autonomousRoutine = Autonomous(self.drive)
 
@@ -54,6 +58,8 @@ class Randy(wpilib.SampleRobot):
 
             elif (self.controller == 'xbox'):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
+
+            self.metabox.run(self.C.leftJ.getY())
 
             wpilib.Timer.delay(0.002) # wait for a motor update time
 

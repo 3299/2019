@@ -9,7 +9,7 @@ class Lights(object):
     def __init__(self):
         # Init I2C for communication with Arduino
         if (hal.isSimulation()):
-            # imports stub for simulation
+            # import stub for simulation
             from components.i2cstub import I2CStub
             self.arduinoC = wpilib.I2C(wpilib.I2C.Port.kOnboard, 4, I2CStub())
         else:
