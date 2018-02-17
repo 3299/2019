@@ -42,7 +42,6 @@ class Chassis(object):
         if rotation == 0:
             # reset gryo when rotation stops
             if (self.wasRotating):
-                print("gyro reset! :D")
                 self.gyro.reset()
                 self.wasRotating = False
 
@@ -53,15 +52,14 @@ class Chassis(object):
             rotation = -self.pidRotateRate
         else:
             # if there's non-zero rotation input from the joystick, don't run the PID loop
-            #self.pidAngle.disable()
             self.wasRotating = True
 
 
-        # asign speeds
+        # assign speeds
         speeds = [0] * 4
-        speeds[0] = -x + y + rotation
-        speeds[1] = x + y - rotation
-        speeds[2] = x + y + rotation
+        speeds[0] =  x - y - rotation
+        speeds[1] =  x + y - rotation
+        speeds[2] = -x - y - rotation
         speeds[3] = -x + y - rotation
 
         # TODO: this will currrently scale speeds if over `1`, but not if under `-1`
@@ -72,10 +70,10 @@ class Chassis(object):
                     speeds[i] = maxSpeed / speeds[i]
 
         # set scaled speeds
-        self.drive['frontLeft'].set(math.sin(speeds[0]))
-        self.drive['frontRight'].set(math.sin(speeds[1]))
-        self.drive['backLeft'].set(math.sin(speeds[2]))
-        self.drive['backRight'].set(math.sin(speeds[3]))
+        self.drive['frontLeft'].set(self.curve(speeds[0]))
+        self.drive['frontRight'].set(self.curve(speeds[1]))
+        self.drive['backLeft'].set(self.curve(speeds[2]))
+        self.drive['backRight'].set(self.curve(speeds[3]))
 
     def polar(self, power, direction, rotation):
         power = power * math.sqrt(2.0)
@@ -100,4 +98,7 @@ class Chassis(object):
         self.pidRotateRate = value
 
     def curve(self, value):
+        """Because this divides by sin(1), an input
+        in range [-1, 1] will always have an output
+        range of [-1, 1]. """
         return (math.sin(value) / math.sin(1));

@@ -15,7 +15,7 @@ from components.lights import Lights
 class Randy(wpilib.SampleRobot):
     def robotInit(self):
         # init cameras
-        wpilib.CameraServer.launch()
+        #wpilib.CameraServer.launch()
 
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
@@ -54,14 +54,6 @@ class Randy(wpilib.SampleRobot):
 
             elif (self.controller == 'xbox'):
                 self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
-
-            # Lights
-            if (self.C.leftJ.getRawButton(6)):
-                self.lights.stagger('blue', True, 255)
-            elif (self.C.leftJ.getRawButton(7)):
-                self.lights.rainbow()
-            elif (self.C.leftJ.getRawButton(8)):
-                self.lights.flash('red', True, 500)
 
             wpilib.Timer.delay(0.002) # wait for a motor update time
 
