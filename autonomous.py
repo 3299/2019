@@ -14,5 +14,4 @@ class Autonomous(object):
         if (hal.isSimulation() == False):
             print(self.DriverStation.getGameSpecificMessage())
 
-        #self.drive.straight(2, 0.3)
-        #self.drive.driveToAngle(0.3, 90, False)
+        self.drive.straight(4, -0.2)

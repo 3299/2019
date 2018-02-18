@@ -57,9 +57,11 @@ class Randy(wpilib.SampleRobot):
                                self.C.leftJ.getRawButton(2))
 
             elif (self.controller == 'xbox'):
-                self.drive.arcade(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
+                self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
             self.metabox.run(self.C.leftJ.getY())
+
+            self.lights.rainbow()
 
             wpilib.Timer.delay(0.002) # wait for a motor update time
 

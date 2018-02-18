@@ -53,7 +53,6 @@ class Lights(object):
         self.send(value)
 
     def send(self, data):
-        print(data)
         try:
             self.arduinoC.writeBulk(bytes(data + '\n', encoding="ASCII"))
         except:

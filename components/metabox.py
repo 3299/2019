@@ -9,7 +9,7 @@ class MetaBox(object):
 
     def run(self, value):
         self.elevatorM.set(value)
-        print(self.getEncoder())
+        #print(self.getEncoder())
 
     def getEncoder(self):
         return self.encoder.getDistance()

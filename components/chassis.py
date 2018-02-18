@@ -27,15 +27,8 @@ class Chassis(object):
         self.pidRotateRate = 0
         self.wasRotating = False
 
-    def run(self, leftX, leftY, rightX, microLeft, microTop, microRight, microBackward):
-        self.arcade(helpers.raiseKeepSign(leftX, 2) + 0.4*(microRight - microLeft),
-                    helpers.raiseKeepSign(leftY, 2) + 0.4*(microBackward - microTop),
-                    rightX)
-
-    def arcade(self, x1, y1, x2):
-        # rotation curve
-        rotation = helpers.raiseKeepSign(helpers.deadband(-x2 * 0.8, self.jDeadband), 2)
-        self.cartesian(x1, y1, rotation)
+    def run(self, leftX, leftY, rightX):
+        self.cartesian(self.curve(leftX), self.curve(leftY), helpers.raiseKeepSign(-rightX * 0.7, 2))
 
     def cartesian(self, x, y, rotation):
         """Uses the gryo to compensate for bad design :P"""
@@ -132,6 +125,8 @@ class Chassis(object):
         """Because this divides by sin(1), an input
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
+        value = helpers.raiseKeepSign(value, 1)
+
         return (math.sin(value) / math.sin(1));
 
     def straight(self, duration, power):
