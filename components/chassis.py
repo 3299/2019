@@ -14,6 +14,9 @@ class Chassis(object):
         self.gyro           = gyro
         self.jDeadband      = 0.05
 
+        self.rampConstant   = 0.5
+        self.lastSpeeds     = [0, 0, 0, 0]
+
         self.usePID         = False
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
@@ -72,6 +75,12 @@ class Chassis(object):
             for i in range(0, 4):
                 if (speeds[i] != 0):
                     speeds[i] =  - (speeds[i] / minSpeed)
+
+        # apply ramping
+        for i in range(0, 4):
+            speeds[i] = (speeds[i] * (1 - self.rampConstant)) + (self.rampConstant * self.lastSpeeds[i])
+
+        self.lastSpeeds = speeds
 
         # set scaled speeds
         self.drive['frontLeft'].set(self.curve(speeds[0]))
