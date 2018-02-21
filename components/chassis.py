@@ -14,10 +14,10 @@ class Chassis(object):
         self.gyro           = gyro
         self.jDeadband      = 0.05
 
-        self.rampConstant   = 0.5
+        self.rampConstant   = 0.7
         self.lastSpeeds     = [0, 0, 0, 0]
 
-        self.usePID         = False
+        self.usePID         = True
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('P', 0.022)
@@ -134,11 +134,13 @@ class Chassis(object):
         """Because this divides by sin(1), an input
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
+
         value = helpers.raiseKeepSign(value, 1)
 
         return (math.sin(value) / math.sin(1));
 
     def straight(self, duration, power):
+        """Intended for use in auto."""
         if hal.isSimulation() == False:
             startTime = time.clock()
             while (time.clock() - startTime < duration):

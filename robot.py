@@ -22,12 +22,13 @@ class Randy(wpilib.SampleRobot):
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
         # Setup subsystems
+        self.driverStation = wpilib.DriverStation.getInstance()
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS)
         self.lights = Lights()
         self.metabox = MetaBox(self.C.elevatorS, self.C.elevatorM)
         self.power = Power()
 
-        self.autonomousRoutine = Autonomous(self.drive)
+        self.autonomousRoutine = Autonomous(self.drive, self.driverStation)
 
         # Joysticks or xBox controller?
         self.controller = 'xbox' # || xbox
@@ -39,6 +40,9 @@ class Randy(wpilib.SampleRobot):
         elif (self.controller == 'xbox'):
             self.C.joystick = wpilib.XboxController(0)
             self.C.leftJ = wpilib.Joystick(1)
+
+        # default to rainbow effect
+        self.lights.run({'effect': 'rainbow'})
 
     def operatorControl(self):
         # runs when robot is enabled
@@ -61,7 +65,17 @@ class Randy(wpilib.SampleRobot):
 
             self.metabox.run(self.C.leftJ.getY())
 
-            self.lights.rainbow()
+            # Lights
+            self.lights.setColor(self.driverStation.getAlliance())
+
+            if (self.driverStation.getMatchTime() < 30 and self.driverStation.getMatchTime() != -1):
+                self.lights.run({'effect': 'flash', 'fade': True, 'speed': 255})
+            elif (helpers.deadband(self.C.leftJ.getY(), 0.1) != 0):
+                self.lights.run({'effect': 'stagger'})
+            else:
+                self.lights.run({'effect': 'rainbow'})
+
+            print(self.C.gyroS.getAngle())
 
             wpilib.Timer.delay(0.002) # wait for a motor update time
 
@@ -70,6 +84,7 @@ class Randy(wpilib.SampleRobot):
 
     def autonomous(self):
         """Runs once during autonomous."""
+        self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         self.autonomousRoutine.run() # see autonomous.py
 
 if __name__ == "__main__":

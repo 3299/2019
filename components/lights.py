@@ -3,7 +3,9 @@ import wpilib
 import hal
 
 """
-Facilitates communication between roboRIO and Arduino (for lights)
+Facilitates communication between roboRIO and Arduino (for lights).
+Handled entirely in the main loop. Do not pass in an instance to
+components.
 """
 class Lights(object):
     def __init__(self):
@@ -15,41 +17,41 @@ class Lights(object):
         else:
             self.arduinoC = wpilib.I2C(wpilib.I2C.Port.kOnboard, 4)
 
-    def rainbow(self):
-        self.send('r')
+        self.allianceColor = 'red'
 
-    def stagger(self, color, fade, speed):
-        commandByte = 's'
+    def setColor(self, color):
+        self.allianceColor = color
 
-        if (color == 'blue'):
-            commandC = 'b'
-        else:
-            commandC = 'r'
-        if (fade == True):
-            commandF = 't'
-        else:
-            commandF = 'f'
+    def run(self, options):
+        if (options['effect'] != 'rainbow'):
+            # default to alliance color
+            options.setdefault('color', self.allianceColor)
 
-        commandS = str(speed)
+            if (options['color'] == 'blue' or options['color'] == wpilib.DriverStation.Alliance.Blue):
+                commandC = 'b'
+            else:
+                commandC = 'r'
 
-        value = commandByte + commandC + commandF + commandS
-        self.send(value)
 
-    def flash(self, color, fade, speed):
-        commandByte = 'f'
+            options.setdefault('fade', False)
+            if (options['fade'] == True):
+                commandF = 't'
+            else:
+                commandF = 'f'
 
-        if (color == 'blue'):
-            commandC = 'b'
-        else:
-            commandC = 'r'
-        if (fade == True):
-            commandF = 't'
-        else:
-            commandF = 'f'
+            options.setdefault('speed', '')
+            commandS = str(options['speed'])
 
-        commandS = str(speed)
+            if (options['effect'] == 'stagger'):
+                commandByte = 's'
+            elif (options['effect'] == 'flash'):
+                commandByte = 'f'
 
-        value = commandByte + commandC + commandF + commandS
+            value = commandByte + commandC + commandF + commandS
+
+        elif (options['effect'] == 'rainbow'):
+            value = 'r'
+
         self.send(value)
 
     def send(self, data):
