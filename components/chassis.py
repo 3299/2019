@@ -14,7 +14,10 @@ class Chassis(object):
         self.gyro           = gyro
         self.jDeadband      = 0.05
 
-        self.usePID         = False
+        self.rampConstant   = 0.7
+        self.lastSpeeds     = [0, 0, 0, 0]
+
+        self.usePID         = True
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('P', 0.022)
@@ -73,6 +76,12 @@ class Chassis(object):
                 if (speeds[i] != 0):
                     speeds[i] =  - (speeds[i] / minSpeed)
 
+        # apply ramping
+        for i in range(0, 4):
+            speeds[i] = (speeds[i] * (1 - self.rampConstant)) + (self.rampConstant * self.lastSpeeds[i])
+
+        self.lastSpeeds = speeds
+
         # set scaled speeds
         self.drive['frontLeft'].set(self.curve(speeds[0]))
         self.drive['frontRight'].set(self.curve(speeds[1]))
@@ -125,11 +134,13 @@ class Chassis(object):
         """Because this divides by sin(1), an input
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
+
         value = helpers.raiseKeepSign(value, 1)
 
         return (math.sin(value) / math.sin(1));
 
     def straight(self, duration, power):
+        """Intended for use in auto."""
         if hal.isSimulation() == False:
             startTime = time.clock()
             while (time.clock() - startTime < duration):

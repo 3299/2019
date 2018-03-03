@@ -4,14 +4,14 @@ Runs the auto routine. Called once.
 import time
 import wpilib
 import hal
+
 class Autonomous(object):
-    def __init__(self, drive):
+    def __init__(self, drive, driverStation):
         self.drive = drive
-        self.DriverStation = wpilib.DriverStation.getInstance()
+        self.driverStation = driverStation
 
     def run(self):
-        print('Autonomous has run')
         if (hal.isSimulation() == False):
-            print(self.DriverStation.getGameSpecificMessage())
+            print(self.driverStation.getGameSpecificMessage())
 
-        self.drive.straight(4, -0.2)
+        self.drive.straight(5, -0.2)
