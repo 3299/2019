@@ -14,9 +14,6 @@ class Chassis(object):
         self.gyro           = gyro
         self.jDeadband      = 0.05
 
-        self.rampConstant   = 0.7
-        self.lastSpeeds     = [0, 0, 0, 0]
-
         self.usePID         = True
         self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
@@ -34,6 +31,9 @@ class Chassis(object):
         self.cartesian(self.curve(leftX), self.curve(leftY), helpers.raiseKeepSign(-rightX * 0.7, 2))
 
     def cartesian(self, x, y, rotation):
+        x = self.curve(x)
+        y = self.curve(y)
+
         """Uses the gryo to compensate for bad design :P"""
         if (self.usePID != False):
             self.pidAngle.setP(self.sd.getNumber("P", 0.03))
@@ -64,68 +64,17 @@ class Chassis(object):
 
         # scales all speeds if one is in range
         # (-inf, -1) U (1, inf)
-        maxSpeed = max(speeds)
-        minSpeed = min(speeds)
-
-        if (maxSpeed > 1):
-            for i in range (0, 4):
-                if (speeds[i] != 0):
-                    speeds[i] = speeds[i] / maxSpeed
-        elif (minSpeed < -1):
+        maxSpeed = max(abs(x) for x in speeds)
+        if maxSpeed > 1.0:
             for i in range(0, 4):
-                if (speeds[i] != 0):
-                    speeds[i] =  - (speeds[i] / minSpeed)
-
-        # apply ramping
-        for i in range(0, 4):
-            speeds[i] = (speeds[i] * (1 - self.rampConstant)) + (self.rampConstant * self.lastSpeeds[i])
-
-        self.lastSpeeds = speeds
+                speeds[i] = speeds[i] / maxSpeed
 
         # set scaled speeds
-        self.drive['frontLeft'].set(self.curve(speeds[0]))
-        self.drive['frontRight'].set(self.curve(speeds[1]))
-        self.drive['backLeft'].set(self.curve(speeds[2]))
-        self.drive['backRight'].set(self.curve(speeds[3]))
-
-    def polar(self, power, direction, rotation):
-        power = power * math.sqrt(2.0)
-
-        # The rollers are at 45 degree angles.
-        dirInRad = math.radians(direction + 45)
-        cosD = math.cos(dirInRad)
-        sinD = math.sin(dirInRad)
-
-        speeds = [0] * 4
-        speeds[0] = sinD * power + rotation
-        speeds[1] = cosD * power - rotation
-        speeds[2] = cosD * power + rotation
-        speeds[3] = sinD * power - rotation
-
         self.drive['frontLeft'].set(speeds[0])
         self.drive['frontRight'].set(speeds[1])
         self.drive['backLeft'].set(speeds[2])
         self.drive['backRight'].set(speeds[3])
 
-
-    def driveToAngle(self, power, angle, continuous):
-        self.gyro.reset()
-        self.pidAngle.setSetpoint(angle)
-        self.pidAngle.enable()
-        self.pidAngle.setContinuous(continuous)
-
-        if (continuous == True): # if true, runs continuously (for driving straight)
-            print(self.pidRotateRate)
-            self.cartesian(0, -power, -self.pidRotateRate)
-        else:
-            while (abs(self.pidAngle.getError()) > 2):
-                print(self.pidAngle.getError())
-                self.cartesian(0, 0, -self.pidRotateRate)
-
-            self.pidAngle.disable()
-            self.cartesian(0, 0, 0)
-            self.gyro.reset()
-            return;
 
     def pidWrite(self, value):
         self.pidRotateRate = value
@@ -149,3 +98,22 @@ class Chassis(object):
 
             # Stop
             self.cartesian(0, 0, 0)
+
+    def driveToAngle(self, power, angle, continuous):
+        """Intended for use in auto."""
+        self.gyro.reset()
+        self.pidAngle.setSetpoint(angle)
+        self.pidAngle.enable()
+        self.pidAngle.setContinuous(continuous)
+
+        if (continuous == True): # if true, runs continuously (for driving straight)
+            self.cartesian(0, -power, -self.pidRotateRate)
+        else:
+            while (abs(self.pidAngle.getError()) > 2):
+                print(self.pidAngle.getError())
+                self.cartesian(0, 0, -self.pidRotateRate)
+
+                self.pidAngle.disable()
+                self.cartesian(0, 0, 0)
+                self.gyro.reset()
+                return

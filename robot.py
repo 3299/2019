@@ -14,7 +14,7 @@ from components.lights import Lights
 from components.metabox import MetaBox
 from components.pdb import Power
 
-class Randy(wpilib.SampleRobot):
+class Randy(wpilib.TimedRobot):
     def robotInit(self):
         # init cameras
         #wpilib.CameraServer.launch()
@@ -30,60 +30,34 @@ class Randy(wpilib.SampleRobot):
 
         self.autonomousRoutine = Autonomous(self.drive, self.driverStation)
 
-        # Joysticks or xBox controller?
-        self.controller = 'xbox' # || xbox
-
-        if (self.controller == 'joysticks'):
-            self.C.leftJ = wpilib.Joystick(0)
-            self.C.middleJ = wpilib.Joystick(1)
-            self.C.rightJ = wpilib.Joystick(2)
-        elif (self.controller == 'xbox'):
-            self.C.joystick = wpilib.XboxController(0)
-            self.C.leftJ = wpilib.Joystick(1)
+        # Joysticks
+        self.C.joystick = wpilib.XboxController(0)
+        self.C.leftJ = wpilib.Joystick(1)
 
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
-    def operatorControl(self):
-        # runs when robot is enabled
-        while self.isOperatorControl() and self.isEnabled():
-            '''
-            Components
-            '''
-            # Drive
-            if (self.controller == 'joysticks'):
-                self.drive.run(self.C.leftJ.getX(),
-                               self.C.leftJ.getY(),
-                               self.C.middleJ.getX(),
-                               self.C.leftJ.getRawButton(4),
-                               self.C.leftJ.getRawButton(3),
-                               self.C.leftJ.getRawButton(5),
-                               self.C.leftJ.getRawButton(2))
+    def teleopPeriodic(self):
+        """This function is called periodically during operator control."""
 
-            elif (self.controller == 'xbox'):
-                self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
+        '''Components'''
+        # Drive
+        self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-            self.metabox.run(self.C.leftJ.getY())
+        self.metabox.run(self.C.leftJ.getY())
 
-            # Lights
-            self.lights.setColor(self.driverStation.getAlliance())
+        # Lights
+        self.lights.setColor(self.driverStation.getAlliance())
 
-            if (self.driverStation.getMatchTime() < 30 and self.driverStation.getMatchTime() != -1):
-                self.lights.run({'effect': 'flash', 'fade': True, 'speed': 255})
-            elif (helpers.deadband(self.C.leftJ.getY(), 0.1) != 0):
-                self.lights.run({'effect': 'stagger'})
-            else:
-                self.lights.run({'effect': 'rainbow'})
+        if (self.driverStation.getMatchTime() < 30 and self.driverStation.getMatchTime() != -1):
+            self.lights.run({'effect': 'flash', 'fade': True, 'speed': 255})
+        elif (helpers.deadband(self.C.leftJ.getY(), 0.1) != 0):
+            self.lights.run({'effect': 'stagger'})
+        else:
+            self.lights.run({'effect': 'rainbow'})
 
-            print(self.C.gyroS.getAngle())
-
-            wpilib.Timer.delay(0.002) # wait for a motor update time
-
-    def test(self):
-        """This function is called periodically during test mode."""
-
-    def autonomous(self):
-        """Runs once during autonomous."""
+    def autonomousInit(self):
+        """This function is run once each time the robot enters autonomous mode."""
         self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         self.autonomousRoutine.run() # see autonomous.py
 
