@@ -9,6 +9,7 @@ class Autonomous(object):
     def __init__(self, drive, driverStation):
         self.drive = drive
         self.driverStation = driverStation
+        self.timer = wpilib.Timer()
 
     def run(self):
         if (hal.isSimulation() == False):
