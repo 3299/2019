@@ -25,7 +25,7 @@ class Randy(wpilib.TimedRobot):
         self.driverStation = wpilib.DriverStation.getInstance()
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS)
         self.lights = Lights()
-        self.metabox = MetaBox(self.C.elevatorS, self.C.elevatorM)
+        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM)
         self.power = Power()
 
         self.autonomousRoutine = Autonomous(self.drive, self.driverStation)

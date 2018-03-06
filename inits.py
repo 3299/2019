@@ -18,5 +18,8 @@ class Component(object):
 
         # Init sensors
         self.gyroS = wpilib.AnalogGyro(Mapping.gyroS)
-        self.elevatorS = wpilib.Encoder(7, 8)
-        self.elevatorS.setDistancePerPulse(0.064)
+        self.elevatorLimitS = wpilib.DigitalInput(0)
+
+        # Encoder
+        self.elevatorEncoderS = wpilib.Encoder(7, 8)
+        self.elevatorEncoderS.setDistancePerPulse(0.064)
