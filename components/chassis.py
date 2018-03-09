@@ -9,17 +9,19 @@ import hal
 from networktables import NetworkTables
 
 class Chassis(object):
-    def __init__(self, drive, gyro):
+    def __init__(self, drive, gyro, encoderY):
         self.drive          = drive
         self.gyro           = gyro
+        self.encoderY       = encoderY
         self.jDeadband      = 0.05
-
-        self.usePID         = True
-        self.pidAngle       = wpilib.PIDController(0.03, 0, 0.1, self.gyro, output=self)
         self.sd             = NetworkTables.getTable('SmartDashboard')
-        self.sd.putNumber('P', 0.022)
-        self.sd.putNumber('I', 0)
-        self.sd.putNumber('D', 0)
+
+        # Boundry on speed (in / sec)
+        self.maxSpeed = 168
+
+        # PID loop for angle
+        self.useAnglePID = False
+        self.pidAngle = wpilib.PIDController(0.03, 0, 0.1, self.gyro, lambda: self.updateAnglePID())
         self.pidAngle.setInputRange(-180.0, 180.0)
         self.pidAngle.setOutputRange(-1.0, 1.0)
         self.pidAngle.setAbsoluteTolerance(5)
@@ -27,15 +29,24 @@ class Chassis(object):
         self.pidRotateRate = 0
         self.wasRotating = False
 
+        # PID loop for Cartesian Y direction
+        self.useYPID = True
+        self.pidY = wpilib.PIDController(0.02, 0, 0, lambda: self.encoderY.getRate(), lambda: self.updateYPID())
+        self.pidY.setInputRange(-self.maxSpeed, self.maxSpeed)
+        self.pidY.setOutputRange(-1.0, 1.0)
+        self.pidY.setContinuous(True)
+        self.pidYRate = 0
+
     def run(self, leftX, leftY, rightX):
         self.cartesian(self.curve(leftX), self.curve(leftY), helpers.raiseKeepSign(-rightX * 0.7, 2))
 
     def cartesian(self, x, y, rotation):
+        # Map joystick values to curve
         x = self.curve(x)
         y = self.curve(y)
 
         """Uses the gryo to compensate for bad design :P"""
-        if (self.usePID != False):
+        if (self.useAnglePID != False):
             self.pidAngle.setP(self.sd.getNumber("P", 0.03))
             self.pidAngle.setI(self.sd.getNumber("I", 0))
             self.pidAngle.setD(self.sd.getNumber("D", 0.1))
@@ -54,6 +65,10 @@ class Chassis(object):
                 # if there's non-zero rotation input from the joystick, don't run the PID loop
                 self.wasRotating = True
 
+        if (self.useYPID != False):
+            mappedY = helpers.remap(y, -1, 1, -self.maxSpeed, self.maxSpeed)
+            self.pidY.setSetpoint(mappedY)
+            y = self.pidYRate
 
         # assign speeds
         speeds = [0] * 4
@@ -76,8 +91,11 @@ class Chassis(object):
         self.drive['backRight'].set(speeds[3])
 
 
-    def pidWrite(self, value):
+    def updateAnglePID(self, value):
         self.pidRotateRate = value
+
+    def updateYPID(self, value):
+        self.pidYRate = value
 
     def curve(self, value):
         """Because this divides by sin(1), an input

@@ -23,7 +23,7 @@ class Randy(wpilib.TimedRobot):
 
         # Setup subsystems
         self.driverStation = wpilib.DriverStation.getInstance()
-        self.drive = Chassis(self.C.driveTrain, self.C.gyroS)
+        self.drive = Chassis(self.C.driveTrain, self.C.gyroS, self.C.driveYEncoderS)
         self.lights = Lights()
         self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM)
         self.power = Power()
@@ -39,7 +39,7 @@ class Randy(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-
+        #print(self.C.driveYEncoderS.getDistance())
         '''Components'''
         # Drive
         self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
