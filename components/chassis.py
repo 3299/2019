@@ -13,7 +13,7 @@ class Chassis(object):
         self.drive          = drive
         self.gyro           = gyro
         self.encoderY       = encoderY
-        self.jDeadband      = 0.05
+        self.jDeadband      = 0.06
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
         # Boundry on speed (in / sec)
@@ -30,20 +30,19 @@ class Chassis(object):
         self.wasRotating = False
 
         # PID loop for Cartesian Y direction
-        self.useYPID = True
+        self.useYPID = False
         self.pidY = wpilib.PIDController(0.02, 0, 0, lambda: self.encoderY.getRate(), lambda: self.updateYPID())
         self.pidY.setInputRange(-self.maxSpeed, self.maxSpeed)
         self.pidY.setOutputRange(-1.0, 1.0)
         self.pidY.setContinuous(True)
         self.pidYRate = 0
 
-    def run(self, leftX, leftY, rightX):
-        self.cartesian(self.curve(leftX), self.curve(leftY), helpers.raiseKeepSign(-rightX * 0.7, 2))
-
     def cartesian(self, x, y, rotation):
         # Map joystick values to curve
         x = self.curve(x)
         y = self.curve(y)
+        #rotation = helpers.raiseKeepSign(-rotation * 0.74, 2)
+        rotation = -rotation * 0.5
 
         """Uses the gryo to compensate for bad design :P"""
         if (self.useAnglePID != False):
@@ -79,10 +78,12 @@ class Chassis(object):
 
         # scales all speeds if one is in range
         # (-inf, -1) U (1, inf)
+        """
         maxSpeed = max(abs(x) for x in speeds)
         if maxSpeed > 1.0:
             for i in range(0, 4):
                 speeds[i] = speeds[i] / maxSpeed
+        """
 
         # set scaled speeds
         self.drive['frontLeft'].set(speeds[0])
@@ -102,7 +103,7 @@ class Chassis(object):
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
 
-        value = helpers.raiseKeepSign(value, 1)
+        value = helpers.deadband(helpers.raiseKeepSign(value, 1), self.jDeadband) * 0.75
 
         return (math.sin(value) / math.sin(1));
 

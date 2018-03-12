@@ -39,10 +39,10 @@ class Randy(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        #print(self.C.driveYEncoderS.getDistance())
+        print(self.C.driveYEncoderS.getRate())
         '''Components'''
         # Drive
-        self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
+        self.drive.cartesian(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
         self.metabox.run(self.C.leftJ.getY())
 
