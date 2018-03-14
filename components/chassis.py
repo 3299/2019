@@ -16,8 +16,11 @@ class Chassis(object):
         self.jDeadband      = 0.06
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
+        self.oldSpeeds      = [0, 0, 0, 0]
+        self.rampFactor     = 0.3
+
         # Boundry on speed (in / sec)
-        self.maxSpeed = 168
+        self.maxSpeed = 37.5
 
         # PID loop for angle
         self.useAnglePID = False
@@ -30,8 +33,8 @@ class Chassis(object):
         self.wasRotating = False
 
         # PID loop for Cartesian Y direction
-        self.useYPID = False
-        self.pidY = wpilib.PIDController(0.02, 0, 0, lambda: self.encoderY.getRate(), lambda: self.updateYPID())
+        self.useYPID = True
+        self.pidY = wpilib.PIDController(0.05, 0, 0.02, lambda: self.encoderY.getRate(), self.updateYPID)
         self.pidY.setInputRange(-self.maxSpeed, self.maxSpeed)
         self.pidY.setOutputRange(-1.0, 1.0)
         self.pidY.setContinuous(True)
@@ -41,7 +44,6 @@ class Chassis(object):
         # Map joystick values to curve
         x = self.curve(x)
         y = self.curve(y)
-        #rotation = helpers.raiseKeepSign(-rotation * 0.74, 2)
         rotation = -rotation * 0.5
 
         """Uses the gryo to compensate for bad design :P"""
@@ -66,31 +68,28 @@ class Chassis(object):
 
         if (self.useYPID != False):
             mappedY = helpers.remap(y, -1, 1, -self.maxSpeed, self.maxSpeed)
+            self.pidY.enable()
             self.pidY.setSetpoint(mappedY)
             y = self.pidYRate
+            print(y)
 
         # assign speeds
         speeds = [0] * 4
-        speeds[0] =  x - y - rotation
-        speeds[1] =  x + y - rotation
-        speeds[2] = -x - y - rotation
-        speeds[3] = -x + y - rotation
+        speeds[0] =  x + y + rotation # front left
+        speeds[1] = -x + y - rotation # front right
+        speeds[2] = -x + y + rotation # back left
+        speeds[3] =  x + y - rotation # back right
 
         # scales all speeds if one is in range
         # (-inf, -1) U (1, inf)
-        """
         maxSpeed = max(abs(x) for x in speeds)
         if maxSpeed > 1.0:
             for i in range(0, 4):
                 speeds[i] = speeds[i] / maxSpeed
-        """
 
-        # set scaled speeds
-        self.drive['frontLeft'].set(speeds[0])
-        self.drive['frontRight'].set(speeds[1])
-        self.drive['backLeft'].set(speeds[2])
-        self.drive['backRight'].set(speeds[3])
-
+        # write speeds to controllers
+        for i in range(0, 4):
+            self.drive[i].set(speeds[i])
 
     def updateAnglePID(self, value):
         self.pidRotateRate = value
@@ -103,7 +102,7 @@ class Chassis(object):
         in range [-1, 1] will always have an output
         range of [-1, 1]. """
 
-        value = helpers.deadband(helpers.raiseKeepSign(value, 1), self.jDeadband) * 0.75
+        value = helpers.deadband(helpers.raiseKeepSign(value, 1), self.jDeadband)
 
         return (math.sin(value) / math.sin(1));
 

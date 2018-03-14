@@ -32,4 +32,4 @@ class Component(object):
         self.elevatorEncoderS.setDistancePerPulse(0.08078)
 
         self.driveYEncoderS = wpilib.Encoder(2, 3)
-        self.driveYEncoderS.setDistancePerPulse(0.06)
+        self.driveYEncoderS.setDistancePerPulse(0.1885)
