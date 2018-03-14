@@ -5,7 +5,6 @@ Defines port numbers for motors and sensors.
 class Map(object):
     def __init__(self):
         # Motors have suffix 'M'. All motors use PWM.
-            # Motors have suffix 'M'. All motors use PWM.
         self.frontLeftM  = 7
         self.frontRightM = 3
         self.backLeftM   = 6
@@ -14,6 +13,9 @@ class Map(object):
 
         self.gyroS = 0
         self.arduino = 9
+
+        # DIO
+        self.elevatorLimitS = 0
 
     """    self.frontLeftM  = 0
         self.frontRightM = 3

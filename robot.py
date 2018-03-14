@@ -37,14 +37,24 @@ class Randy(wpilib.TimedRobot):
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
+        self.maxRate = 0
+
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        print(self.C.driveYEncoderS.getRate())
         '''Components'''
         # Drive
         self.drive.cartesian(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-        self.metabox.run(self.C.leftJ.getY())
+
+        if (helpers.deadband(self.C.leftJ.getY(), 0.2) != 0):
+            self.C.elevatorM.set(self.C.leftJ.getY())
+        else:
+            if (self.C.joystick.getAButton() == True):
+                self.metabox.calibrateAsync()
+            elif (self.C.joystick.getBButton()):
+                self.metabox.set(15)
+            else:
+                self.C.elevatorM.set(0)
 
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
