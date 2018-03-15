@@ -12,25 +12,27 @@ class MetaBox(object):
         self.elevatorM = elevatorM
         self.elevatorTravel = 26.25
         self.floorOffset = 11.25
-
-        self.pid = wpilib.PIDController(1, 0.2, 0.2, lambda: self.getEncoder(), self.elevatorM)
-        self.pid.setAbsoluteTolerance(0.1)
-
         self.sd = NetworkTables.getTable('SmartDashboard')
-        self.sd.putNumber('p', 0.8)
-        self.sd.putNumber('i', 0.2)
-        self.sd.putNumber('d', 0.5)
+
+        self.pidDefault = {'p': 0.8, 'i': 0.2, 'd': 0.5}
+        self.pid = wpilib.PIDController(self.pidDefault['p'], self.pidDefault['i'], self.pidDefault['d'], lambda: self.getEncoder(), self.elevatorM)
+        self.pid.setAbsoluteTolerance(0.1)
+        self.sd.putNumber('elevatorP', self.pidDefault['p'])
+        self.sd.putNumber('elevatorI', self.pidDefault['i'])
+        self.sd.putNumber('elevatorD', self.pidDefault['d'])
 
     def getEncoder(self):
         return self.encoder.getDistance() + self.elevatorTravel
 
     def set(self, height, continuous=False):
-        self.pid.setP(self.sd.getNumber('p', 1))
-        self.pid.setI(self.sd.getNumber('i', 0.2))
-        self.pid.setD(self.sd.getNumber('d', 0.2))
+        self.pid.setP(self.sd.getNumber('elevatorP', self.pidDefault['p']))
+        self.pid.setI(self.sd.getNumber('elevatorI', self.pidDefault['i']))
+        self.pid.setD(self.sd.getNumber('elevatorD', self.pidDefault['d']))
 
         if (height - self.floorOffset < 0 or height > self.floorOffset + self.elevatorTravel):
             return False
+        elif (self.limit.get() == True):
+            self.pid.disable()
         else:
             self.pid.setContinuous(continuous)
             self.pid.enable()

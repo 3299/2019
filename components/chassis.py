@@ -16,15 +16,18 @@ class Chassis(object):
         self.jDeadband      = 0.06
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
-        self.oldSpeeds      = [0, 0, 0, 0]
-        self.rampFactor     = 0.3
-
         # Boundry on speed (in / sec)
         self.maxSpeed = 37.5
 
         # PID loop for angle
-        self.useAnglePID = False
-        self.pidAngle = wpilib.PIDController(0.03, 0, 0.1, self.gyro, lambda: self.updateAnglePID())
+        self.useAnglePID = True
+
+        self.pidAngleDefault = {'p': 0.03, 'i': 0, 'd': 0.1}
+        self.sd.putNumber('pidAngleP', self.pidAngleDefault['p'])
+        self.sd.putNumber('pidAngleI', self.pidAngleDefault['i'])
+        self.sd.putNumber('pidAngleD', self.pidAngleDefault['d'])
+
+        self.pidAngle = wpilib.PIDController(self.pidAngleDefault['p'], self.pidAngleDefault['i'], self.pidAngleDefault['d'], self.gyro, self.updateAnglePID)
         self.pidAngle.setInputRange(-180.0, 180.0)
         self.pidAngle.setOutputRange(-1.0, 1.0)
         self.pidAngle.setAbsoluteTolerance(5)
@@ -34,7 +37,13 @@ class Chassis(object):
 
         # PID loop for Cartesian Y direction
         self.useYPID = True
-        self.pidY = wpilib.PIDController(0.05, 0, 0.02, lambda: self.encoderY.getRate(), self.updateYPID)
+
+        self.pidYDefault = {'p': 0.05, 'i': 0, 'd': 0.02}
+        self.sd.putNumber('pidYP', self.pidYDefault['p'])
+        self.sd.putNumber('pidYI', self.pidYDefault['i'])
+        self.sd.putNumber('pidYD', self.pidYDefault['d'])
+
+        self.pidY = wpilib.PIDController(self.pidYDefault['p'], self.pidYDefault['i'], self.pidYDefault['d'], self.encoderY.getRate, self.updateYPID)
         self.pidY.setInputRange(-self.maxSpeed, self.maxSpeed)
         self.pidY.setOutputRange(-1.0, 1.0)
         self.pidY.setContinuous(True)
@@ -44,10 +53,11 @@ class Chassis(object):
         # Map joystick values to curve
         x = self.curve(x)
         y = self.curve(y)
-        rotation = -rotation * 0.5
+        rotation = helpers.deadband(-rotation * 0.5, 0.1)
 
         """Uses the gryo to compensate for bad design :P"""
         if (self.useAnglePID != False):
+            self.sd.putBoolean('wasrotating', self.wasRotating)
             self.pidAngle.setP(self.sd.getNumber("P", 0.03))
             self.pidAngle.setI(self.sd.getNumber("I", 0))
             self.pidAngle.setD(self.sd.getNumber("D", 0.1))
@@ -71,7 +81,6 @@ class Chassis(object):
             self.pidY.enable()
             self.pidY.setSetpoint(mappedY)
             y = self.pidYRate
-            print(y)
 
         # assign speeds
         speeds = [0] * 4
@@ -92,9 +101,17 @@ class Chassis(object):
             self.drive[i].set(speeds[i])
 
     def updateAnglePID(self, value):
+        self.pidAngle.setP(self.sd.getNumber('pidAngleP', self.pidAngleDefault['p']))
+        self.pidAngle.setI(self.sd.getNumber('pidAngleI', self.pidAngleDefault['i']))
+        self.pidAngle.setD(self.sd.getNumber('pidAngleD', self.pidAngleDefault['d']))
+
         self.pidRotateRate = value
 
     def updateYPID(self, value):
+        self.pidY.setP(self.sd.getNumber('pidP', self.pidYDefault['p']))
+        self.pidY.setI(self.sd.getNumber('pidI', self.pidYDefault['i']))
+        self.pidY.setD(self.sd.getNumber('pidD', self.pidYDefault['d']))
+
         self.pidYRate = value
 
     def curve(self, value):

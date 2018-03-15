@@ -45,7 +45,6 @@ class Randy(wpilib.TimedRobot):
         # Drive
         self.drive.cartesian(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-
         if (helpers.deadband(self.C.leftJ.getY(), 0.2) != 0):
             self.C.elevatorM.set(self.C.leftJ.getY())
         else:
