@@ -117,21 +117,20 @@ class Chassis(object):
             # Stop
             self.cartesian(0, 0, 0)
 
-    def driveToAngle(self, power, angle, continuous):
+    def driveToAngle(self, power, angle):
         """Intended for use in auto."""
         self.gyro.reset()
         self.pidAngle.setSetpoint(angle)
         self.pidAngle.enable()
-        self.pidAngle.setContinuous(continuous)
 
-        if (continuous == True): # if true, runs continuously (for driving straight)
-            self.cartesian(0, -power, -self.pidRotateRate)
-        else:
-            while (abs(self.pidAngle.getError()) > 2):
-                print(self.pidAngle.getError())
-                self.cartesian(0, 0, -self.pidRotateRate)
+        while (abs(self.pidAngle.getError()) > 2):
+            print(self.pidAngle.getError())
+            self.cartesian(0, 0, -self.pidRotateRate)
 
-                self.pidAngle.disable()
-                self.cartesian(0, 0, 0)
-                self.gyro.reset()
-                return
+            self.pidAngle.disable()
+            self.cartesian(0, 0, 0)
+            self.gyro.reset()
+            return
+
+    def driveToPosition(self, distance):
+        print (distance)
