@@ -10,12 +10,16 @@ class Map(object):
         self.backLeftM   = 6
         self.backRightM  = 5
         self.elevatorM   = 4
+        self.winchM      = 2
+        self.intakeM     = 8
 
         self.gyroS = 0
         self.arduino = 9
 
         # DIO
         self.elevatorLimitS = 0
+
+        self.metaboxSol = {'out': 0, 'in': 1}
 
     """    self.frontLeftM  = 0
         self.frontRightM = 3

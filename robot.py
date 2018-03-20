@@ -2,7 +2,6 @@
 Main logic code
 """
 import wpilib
-import time
 
 from inits import Component
 import helpers
@@ -12,20 +11,19 @@ from components.chassis import Chassis
 from autonomous import Autonomous
 from components.lights import Lights
 from components.metabox import MetaBox
+from components.winch import Winch
 from components.pdb import Power
 
 class Randy(wpilib.TimedRobot):
     def robotInit(self):
-        # init cameras
-        #wpilib.CameraServer.launch()
-
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
         # Setup subsystems
         self.driverStation = wpilib.DriverStation.getInstance()
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS, self.C.driveYEncoderS)
         self.lights = Lights()
-        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM)
+        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM, self.C.intakeM)
+        self.winch = Winch(self.C.winchM)
         self.power = Power()
 
         self.autonomousRoutine = Autonomous(self.drive, self.driverStation)
@@ -37,7 +35,6 @@ class Randy(wpilib.TimedRobot):
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
-        self.maxRate = 0
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
@@ -45,15 +42,14 @@ class Randy(wpilib.TimedRobot):
         # Drive
         self.drive.cartesian(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
-        if (helpers.deadband(self.C.leftJ.getY(), 0.2) != 0):
-            self.C.elevatorM.set(self.C.leftJ.getY())
+        # MetaBox
+        self.metabox.run(self.C.leftJ.getY(), self.C.leftJ.getRawButton(4), self.C.leftJ.getRawButton(5))
+
+        # Winch
+        if (self.C.leftJ.getRawButton(3)):
+            self.winch.run(1)
         else:
-            if (self.C.joystick.getAButton() == True):
-                self.metabox.calibrateAsync()
-            elif (self.C.joystick.getBButton()):
-                self.metabox.set(15)
-            else:
-                self.C.elevatorM.set(0)
+            self.winch.run(0)
 
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
@@ -64,6 +60,11 @@ class Randy(wpilib.TimedRobot):
             self.lights.run({'effect': 'stagger'})
         else:
             self.lights.run({'effect': 'rainbow'})
+
+    def teleopInit(self):
+        """This function is run once each time the robot enters teleop mode."""
+        # reset gyro
+        self.C.gyroS.reset()
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""

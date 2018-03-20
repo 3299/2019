@@ -20,7 +20,7 @@ class Chassis(object):
         self.maxSpeed = 37.5
 
         # PID loop for angle
-        self.useAnglePID = True
+        self.useAnglePID = False
 
         self.pidAngleDefault = {'p': 0.03, 'i': 0, 'd': 0.1}
         self.sd.putNumber('pidAngleP', self.pidAngleDefault['p'])
@@ -36,7 +36,7 @@ class Chassis(object):
         self.wasRotating = False
 
         # PID loop for Cartesian Y direction
-        self.useYPID = True
+        self.useYPID = False
 
         self.pidYDefault = {'p': 0.05, 'i': 0, 'd': 0.02}
         self.sd.putNumber('pidYP', self.pidYDefault['p'])

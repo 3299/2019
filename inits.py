@@ -22,6 +22,11 @@ class Component(object):
         # Init motors
         self.elevatorM = wpilib.Talon(Mapping.elevatorM)
         self.elevatorM.setInverted(True)
+        self.winchM = wpilib.Talon(Mapping.winchM)
+        self.intakeM = wpilib.Talon(Mapping.intakeM)
+
+        # Soleniods
+        self.metaboxSol = wpilib.DoubleSolenoid(Mapping.metaboxSol['out'], Mapping.metaboxSol['in'])
 
         # Init sensors
         self.gyroS = wpilib.AnalogGyro(Mapping.gyroS)
