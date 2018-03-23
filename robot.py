@@ -22,7 +22,7 @@ class Randy(wpilib.TimedRobot):
         self.driverStation = wpilib.DriverStation.getInstance()
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS, self.C.driveYEncoderS)
         self.lights = Lights()
-        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM, self.C.intakeM)
+        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM, self.C.intakeM, self.C.jawsSol, self.C.pusherSol)
         self.winch = Winch(self.C.winchM)
         self.power = Power()
 
@@ -40,13 +40,17 @@ class Randy(wpilib.TimedRobot):
         """This function is called periodically during operator control."""
         '''Components'''
         # Drive
-        self.drive.cartesian(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
+        self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
         # MetaBox
-        self.metabox.run(self.C.leftJ.getY(), self.C.leftJ.getRawButton(4), self.C.leftJ.getRawButton(5))
+        self.metabox.run(self.C.leftJ.getY(),          # elevator rate of change
+                         self.C.leftJ.getRawButton(1), # run intake wheels in
+                         self.C.leftJ.getRawButton(4), # run 1st push out preset
+                         self.C.leftJ.getRawButton(3), # run 2nd push out preset
+                         self.C.leftJ.getRawButton(5)) # run 3rd push out preset
 
         # Winch
-        if (self.C.leftJ.getRawButton(3)):
+        if (self.C.leftJ.getRawButton(9)):
             self.winch.run(1)
         else:
             self.winch.run(0)
@@ -69,7 +73,22 @@ class Randy(wpilib.TimedRobot):
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
         self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
-        self.autonomousRoutine.run() # see autonomous.py
+        # reset gyro
+        self.C.gyroS.reset()
+
+    def autonomousPeriodic(self):
+        state = 0
+        if (state == 0):
+            if (self.drive.toDistance(6)):
+                state += 1
+        if (state == 1):
+            if (self.drive.toAngle(-45)):
+                state += 1
+        if (state == 2):
+            if (self.drive.toDistance(10)):
+                state += 1
+        print(state)
+        #self.autonomousRoutine.run() # see autonomous.py
 
 if __name__ == "__main__":
     wpilib.run(Randy)

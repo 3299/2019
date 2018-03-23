@@ -16,7 +16,7 @@ class Chassis(object):
         self.jDeadband      = 0.06
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
-        # Boundry on speed (in / sec)
+        # Boundary on speed (in / sec)
         self.maxSpeed = 37.5
 
         # PID loop for angle
@@ -28,28 +28,26 @@ class Chassis(object):
         self.sd.putNumber('pidAngleD', self.pidAngleDefault['d'])
 
         self.pidAngle = wpilib.PIDController(self.pidAngleDefault['p'], self.pidAngleDefault['i'], self.pidAngleDefault['d'], self.gyro, self.updateAnglePID)
-        self.pidAngle.setInputRange(-180.0, 180.0)
         self.pidAngle.setOutputRange(-1.0, 1.0)
-        self.pidAngle.setAbsoluteTolerance(5)
-        self.pidAngle.setContinuous(False)
+        self.pidAngle.setAbsoluteTolerance(2)
         self.pidRotateRate = 0
         self.wasRotating = False
 
         # PID loop for Cartesian Y direction
         self.useYPID = False
 
-        self.pidYDefault = {'p': 0.05, 'i': 0, 'd': 0.02}
+        self.pidYDefault = {'p': 0.08, 'i': 0, 'd': 0}
         self.sd.putNumber('pidYP', self.pidYDefault['p'])
         self.sd.putNumber('pidYI', self.pidYDefault['i'])
         self.sd.putNumber('pidYD', self.pidYDefault['d'])
 
-        self.pidY = wpilib.PIDController(self.pidYDefault['p'], self.pidYDefault['i'], self.pidYDefault['d'], self.encoderY.getRate, self.updateYPID)
-        self.pidY.setInputRange(-self.maxSpeed, self.maxSpeed)
-        self.pidY.setOutputRange(-1.0, 1.0)
-        self.pidY.setContinuous(True)
+        self.pidY = wpilib.PIDController(self.pidYDefault['p'], self.pidYDefault['i'], self.pidYDefault['d'], self.encoderY.getDistance, self.updateYPID)
         self.pidYRate = 0
 
-    def cartesian(self, x, y, rotation):
+        self.toDistanceFirstCall = True
+
+    def run(self, x, y, rotation):
+        '''Intended for use in telelop. Use .cartesian for auto.'''
         # Map joystick values to curve
         x = self.curve(x)
         y = self.curve(y)
@@ -67,21 +65,25 @@ class Chassis(object):
                     self.gyro.reset()
                     self.wasRotating = False
 
-                # PID controller
-                self.pidAngle.setSetpoint(0)
-                self.pidAngle.enable()
-                self.pidAngle.setContinuous(True)
-                rotation = -self.pidRotateRate
-            else:
-                # if there's non-zero rotation input from the joystick, don't run the PID loop
-                self.wasRotating = True
+                    # PID controller
+                    self.pidAngle.setSetpoint(0)
+                    self.pidAngle.enable()
+                    self.pidAngle.setContinuous(True)
+                    rotation = -self.pidRotateRate
+                else:
+                    # if there's non-zero rotation input from the joystick, don't run the PID loop
+                    self.wasRotating = True
 
-        if (self.useYPID != False):
-            mappedY = helpers.remap(y, -1, 1, -self.maxSpeed, self.maxSpeed)
-            self.pidY.enable()
-            self.pidY.setSetpoint(mappedY)
-            y = self.pidYRate
+                    if (self.useYPID != False):
+                        mappedY = helpers.remap(y, -1, 1, -self.maxSpeed, self.maxSpeed)
+                        self.pidY.enable()
+                        self.pidY.setSetpoint(mappedY)
+                        y = self.pidYRate
 
+        # write manipulated values to motors
+        self.cartesian(x, y, rotation)
+
+    def cartesian(self, x, y, rotation):
         # assign speeds
         speeds = [0] * 4
         speeds[0] =  x + y + rotation # front left
@@ -123,31 +125,33 @@ class Chassis(object):
 
         return (math.sin(value) / math.sin(1));
 
-    def straight(self, duration, power):
+    def toAngle(self, angle):
         """Intended for use in auto."""
-        if hal.isSimulation() == False:
-            startTime = time.clock()
-            while (time.clock() - startTime < duration):
-                self.cartesian(0, power, 0)
-                print(time.clock())
-
-            # Stop
-            self.cartesian(0, 0, 0)
-
-    def driveToAngle(self, power, angle):
-        """Intended for use in auto."""
-        self.gyro.reset()
         self.pidAngle.setSetpoint(angle)
         self.pidAngle.enable()
 
-        while (abs(self.pidAngle.getError()) > 2):
-            print(self.pidAngle.getError())
-            self.cartesian(0, 0, -self.pidRotateRate)
-
+        if (self.pidAngle.onTarget()):
             self.pidAngle.disable()
-            self.cartesian(0, 0, 0)
-            self.gyro.reset()
-            return
+            return True
+        else:
+            self.cartesian(0, 0, self.pidRotateRate)
+            return False
 
-    def driveToPosition(self, distance):
-        print (distance)
+    def toDistance(self, distance):
+        """Intended for use in auto."""
+        if (self.toDistanceFirstCall):
+            self.encoderY.reset()
+            self.toDistanceFirstCall = False
+
+        self.pidY.setContinuous(False)
+        self.pidY.setAbsoluteTolerance(0.1)
+        self.pidY.setSetpoint(distance)
+        self.pidY.enable()
+
+        if (self.pidY.onTarget()):
+            self.pidY.disable()
+            self.toDistanceFirstCall = True
+            return True
+        else:
+            self.cartesian(0, self.pidYRate, 0)
+            return False

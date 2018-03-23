@@ -19,7 +19,9 @@ class Map(object):
         # DIO
         self.elevatorLimitS = 0
 
-        self.metaboxSol = {'out': 0, 'in': 1}
+        # Soleniods
+        self.jawsSol = {'out': 2, 'in': 3}
+        self.pusherSol = {'out': 0, 'in': 1}
 
     """    self.frontLeftM  = 0
         self.frontRightM = 3

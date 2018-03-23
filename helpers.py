@@ -2,7 +2,28 @@
 Provides various helper functions.
 """
 
+import wpilib
 import math
+
+class timeToggle(object):
+    def __init__(self):
+        self.period = 0
+        self.timer = wpilib.Timer()
+        self.running = False
+
+    def start(self, reset, period):
+        if (self.running == False and reset):
+            self.period = period
+            self.timer.start()
+            self.running = True
+
+    def get(self):
+        if (not self.timer.hasPeriodPassed(self.period) and self.running == True): # will be true if timer still running
+            return True
+        else:
+            self.timer.stop()
+            self.running = False
+            return False
 
 def remap( x, oMin, oMax, nMin, nMax ): # thanks stackoverflow.com/a/15537393
     #range check

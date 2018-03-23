@@ -26,7 +26,8 @@ class Component(object):
         self.intakeM = wpilib.Talon(Mapping.intakeM)
 
         # Soleniods
-        self.metaboxSol = wpilib.DoubleSolenoid(Mapping.metaboxSol['out'], Mapping.metaboxSol['in'])
+        self.jawsSol = wpilib.DoubleSolenoid(Mapping.jawsSol['out'], Mapping.jawsSol['in'])
+        self.pusherSol = wpilib.DoubleSolenoid(Mapping.pusherSol['out'], Mapping.pusherSol['in'])
 
         # Init sensors
         self.gyroS = wpilib.AnalogGyro(Mapping.gyroS)
@@ -37,4 +38,4 @@ class Component(object):
         self.elevatorEncoderS.setDistancePerPulse(0.08078)
 
         self.driveYEncoderS = wpilib.Encoder(2, 3)
-        self.driveYEncoderS.setDistancePerPulse(0.1885)
+        self.driveYEncoderS.setDistancePerPulse(0.015708)
