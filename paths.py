@@ -20,7 +20,8 @@ class Paths(object):
                 'left': [
                     pf.Waypoint(0, 0, 0),
                     pf.Waypoint(6, -6, 0),
-                    #pf.Waypoint(18, -5, math.radians(-90)),
+                    pf.Waypoint(11, -6, 0),
+                    pf.Waypoint(8, 0, math.radians(-90)),
                     #pf.Waypoint(18, 0, 0)
                     #pf.Waypoint(14, 14, 0)
                     #pf.Waypoint(10, 15, 0),
