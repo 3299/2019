@@ -26,8 +26,6 @@ class Randy(wpilib.TimedRobot):
         self.winch = Winch(self.C.winchM)
         self.power = Power()
 
-        self.autonomousRoutine = Autonomous(self.drive, self.driverStation)
-
         # Joysticks
         self.C.joystick = wpilib.XboxController(0)
         self.C.leftJ = wpilib.Joystick(1)
@@ -76,19 +74,11 @@ class Randy(wpilib.TimedRobot):
         # reset gyro
         self.C.gyroS.reset()
 
+        # Init autonomous
+        self.autonomousRoutine = Autonomous(self.drive, self.C.driveYEncoderS, self.C.gyroS, self.driverStation)
+
     def autonomousPeriodic(self):
-        state = 0
-        if (state == 0):
-            if (self.drive.toDistance(6)):
-                state += 1
-        if (state == 1):
-            if (self.drive.toAngle(-45)):
-                state += 1
-        if (state == 2):
-            if (self.drive.toDistance(10)):
-                state += 1
-        print(state)
-        #self.autonomousRoutine.run() # see autonomous.py
+        self.autonomousRoutine.run() # see autonomous.py
 
 if __name__ == "__main__":
     wpilib.run(Randy)

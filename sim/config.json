@@ -2,10 +2,10 @@
   "pyfrc": {
 
   	"robot": {
-  	  "w": 3,
-  	  "h": 2,
-      "starting_x": 1.8,
-      "starting_y": 14
+  	  "w": 2.67,
+  	  "h": 2.33,
+      "starting_x": 1.335,
+      "starting_y": 18.5
   	}
   }
 }
