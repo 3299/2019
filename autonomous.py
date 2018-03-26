@@ -38,18 +38,15 @@ class Autonomous(object):
                 renderer.draw_pathfinder_trajectory(trajectory, color='#0000ff', offset=(1,0))
 
     def run(self):
-        print(self.encoder.get())
-        velocity = self.follower.calculate(-self.encoder.get())
+        velocity = self.follower.calculate(self.encoder.get())
 
         gyro_heading = -self.gyro.getAngle()
         desired_heading = pf.r2d(self.follower.getHeading())
 
         angleDifference = pf.boundHalfDegrees(desired_heading - gyro_heading)
-        turn = 0.8 * (-1.0/80.0) * angleDifference
+        turn = 0.9 * (-1.0/80.0) * angleDifference
 
-        print(turn)
-
-        self.drive.cartesian(0, -velocity, turn)
+        self.drive.cartesian(0, velocity, turn)
         """
         targetScale = True
         targetSwitch = True
