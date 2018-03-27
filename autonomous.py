@@ -28,6 +28,8 @@ class Autonomous(object):
 
         self.follower = follower
 
+        self.state = 0
+
         # This code renders the followed path on the field in simulation (requires pyfrc 2018.2.0+)
         if wpilib.RobotBase.isSimulation():
             from pyfrc.sim import get_user_renderer
@@ -38,6 +40,7 @@ class Autonomous(object):
                 renderer.draw_pathfinder_trajectory(trajectory, color='#0000ff', offset=(1,0))
 
     def run(self):
+        '''
         velocity = self.follower.calculate(self.encoder.get())
 
         gyro_heading = -self.gyro.getAngle()
@@ -47,285 +50,14 @@ class Autonomous(object):
         turn = 0.9 * (-1.0/80.0) * angleDifference
 
         self.drive.cartesian(0, velocity, turn)
-        """
-        targetScale = True
-        targetSwitch = True
-        position = 'Left'
-        switch = 'Left'
-        scale = 'Left'
+        '''
 
-        # Example:
-                state = 0
-                if (state == 0):
-                    if (self.drive.toDistance(6)):
-                        state += 1
-                if (state == 1):
-                    if (self.drive.toAngle(-45)):
-                        state += 1
-                if (state == 2):
-                    if (self.drive.toDistance(10)):
-                        state += 1
-                print(state)
-
-        if (self.driveToAngle(60) == True)
-
-        """
-
-
-        """
-        if (targetScale == True):
-            if (targetSwitch == True):
-                if (position == 'Left'):
-                    if (switch == 'Left'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic cube drop
-                            Also magic cube pickup
-                            '''
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic Scale drop
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic cube drop
-                            Also magic cube pickup
-                            '''
-                            self.driveToAngle(0.2,60)
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic Scale drop
-                            '''
-                    if (switch == 'Right'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(5)
-                            self.driveToAngle(0.2,90)
-                            self.drive.driveToPosition(7)
-                            '''
-                            Magic cube drop thingy
-                            Magic cube pickup thingy
-                            '''
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(7)
-                            self.driveToAngle(0.2,90)
-                            self.drive.driveToPosition(2)
-                            '''
-                            Magic scale drop
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(5)
-                            self.driveToAngle(0.2,90)
-                            self.drive.driveToPosition(7)
-                            '''
-                            Magic cube drop thingy
-                            Magic cube pickup thingy
-                            '''
-                            self.driveToAngle(0.2,180)
-                            self.drive.driveToPosition(7)
-                            self.driveToAngle(0.2,90)
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic scale drop
-                            '''
-                if (position == 'Center'):
-                    if (switch == 'Left'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(2)
-                            self.driveToAngle(0.2,-60)
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic cube drop thingy
-                            '''
-                            self.driveToAngle(0.2,60)
-                            self.drive.driveToPosition(7)
-                            '''
-                            scale drop thingy
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(2)
-                            self.driveToAngle(0.2,60)
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic cube drop thingy
-                            '''
-                            self.driveToAngle(0.2,-150)
-                            self.drive.driveToPosition(7)
-                            self.driveToAngle(0.2,90)
-                            '''
-                            scale drop thingy
-                            '''
-                    if (switch == 'Right'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(2)
-                            self.driveToAngle(0.2,-60)
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic cube drop thingy
-                            '''
-                            self.driveToAngle(0.2,60)
-                            self.drive.driveToPosition(2)
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(7)
-                            '''
-                            scale drop thingy
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(2)
-                            self.driveToAngle(0.2,60)
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic cube drop thingy
-                            '''
-                            self.driveToAngle(0.2,-60)
-                            self.drive.driveToPosition(7)
-                            '''
-                            scale drop thingy
-                            '''
-                if (position == 'Right'):
-                    if (switch == 'Left'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(5)
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(7)
-                            '''
-                            Magic cube drop thingy
-                            Magic cube pickup thingy
-                            '''
-                            self.driveToAngle(0.2,-180)
-                            self.drive.driveToPosition(7)
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic scale drop
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(5)
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(7)
-                            '''
-                            Magic cube drop thingy
-                            Magic cube pickup thingy
-                            '''
-                            self.driveToAngle(0.2,90)
-                            self.drive.driveToPosition(7)
-                            self.driveToAngle(0.2,-90)
-                            self.drive.driveToPosition(2)
-                            '''
-                            Magic scale drop
-                            '''
-                    if (switch == 'Right'):
-                        if (scale == 'Left'):
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic cube drop
-                            Also magic cube pickup
-                            '''
-                            self.driveToAngle(0.2,-60)
-                            self.drive.driveToPosition(7)
-                            '''
-                            magic Scale drop
-                            '''
-                        if (scale == 'Right'):
-                            self.drive.driveToPosition(5)
-                            '''
-                            Magic cube drop
-                            Also magic cube pickup
-                            '''
-                            self.drive.driveToPosition(5)
-                            '''
-                            magic Scale drop
-                            '''
-            else:
-                if (position == 'Left'):
-                    if (scale == 'Left'):
-                        self.drive.driveToPosition(10)
-                        '''
-                        Magic tall cube drop
-                        '''
-                    if (scale == 'Right'):
-                        self.drive.driveToPosition(10)
-                        self.driveToAngle(0.2,90)
-                        self.drive.driveToPosition(5)
-                        '''
-                        Magic tall cube drop
-                        '''
-                if (position == 'Center'):
-                    if (scale == 'Left'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2,-60)
-                        self.drive.driveToPosition(3)
-                        self.driveToAngle(0.2,60)
-                        self.drive.driveToPosition(10)
-                        '''
-                        Magic tall cube drop
-                        '''
-                    if (scale == 'Right'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2,60)
-                        self.drive.driveToPosition(3)
-                        self.driveToAngle(0.2,-60)
-                        self.drive.driveToPosition(10)
-                        '''
-                        Magic tall cube drop
-                        '''
-                if (position == 'Right'):
-                    if (scale == 'Left'):
-                        self.drive.driveToPosition(10)
-                        self.driveToAngle(0.2,90)
-                        self.drive.driveToPosition(5)
-                        '''
-                        Magic tall cube drop
-                        '''
-                    if (scale == 'Right'):
-                        self.drive.driveToPosition(10)
-                        '''
-                        Magic tall cube drop
-                        '''
-        else:
-            if (targetSwitch == True):
-                if (position == 'Left'):
-                    if (switch == 'Right'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2, 60)
-                        self.drive.driveToPosition(4)
-                        '''
-                        Drop the cube
-                        '''
-                    if (switch == 'Left'):
-                        self.drive.driveToPosition(5)
-                        '''
-                        Drop the cube
-                        '''
-                if (position == 'Center'):
-                    if (switch == 'Right'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2, 60)
-                        self.drive.driveToPosition(3)
-                        '''
-                        Drop the cube
-                        '''
-                    if (switch == 'Left'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2, -60)
-                        self.drive.driveToPosition(3)
-                        '''
-                        Drop the cube
-                        '''
-                if (position == 'Right'):
-                    if (switch == 'Right'):
-                        self.drive.driveToPosition(5)
-                        '''
-                        Drop the cube
-                        '''
-                    if (switch == 'Left'):
-                        self.drive.driveToPosition(1)
-                        self.driveToAngle(0.2, -60)
-                        self.drive.driveToPosition(4)
-                        '''
-                        Drop the cube
-                        '''
-            else:
-                self.drive.driveToPosition(5)
-            """
+        if (self.state == 0):
+            if (self.drive.toDistance(6)):
+                self.state += 1
+        if (self.state == 1):
+            if (self.drive.toAngle(-45)):
+                self.state += 1
+        if (self.state == 2):
+            if (self.drive.toDistance(10)):
+                self.state += 1

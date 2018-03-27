@@ -12,12 +12,14 @@ class Map(object):
         self.elevatorM   = 4
         self.winchM      = 2
         self.intakeM     = 8
+        self.jawsM       = 0
 
         self.gyroS = 0
         self.arduino = 9
 
         # DIO
         self.elevatorLimitS = 0
+        self.jawsLimitS = 1
 
         # Soleniods
         self.jawsSol = {'out': 2, 'in': 3}

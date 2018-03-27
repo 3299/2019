@@ -22,7 +22,14 @@ class Randy(wpilib.TimedRobot):
         self.driverStation = wpilib.DriverStation.getInstance()
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS, self.C.driveYEncoderS)
         self.lights = Lights()
-        self.metabox = MetaBox(self.C.elevatorEncoderS, self.C.elevatorLimitS, self.C.elevatorM, self.C.intakeM, self.C.jawsSol, self.C.pusherSol)
+        self.metabox = MetaBox(self.C.elevatorEncoderS,
+                               self.C.jawsEncoderS,
+                               self.C.elevatorLimitS,
+                               self.C.jawsLimitS,
+                               self.C.jawsM,
+                               self.C.elevatorM,
+                               self.C.intakeM,
+                               self.C.jawsSol)
         self.winch = Winch(self.C.winchM)
         self.power = Power()
 
@@ -33,7 +40,6 @@ class Randy(wpilib.TimedRobot):
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
-
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
         '''Components'''
@@ -43,9 +49,10 @@ class Randy(wpilib.TimedRobot):
         # MetaBox
         self.metabox.run(self.C.leftJ.getY(),          # elevator rate of change
                          self.C.leftJ.getRawButton(1), # run intake wheels in
-                         self.C.leftJ.getRawButton(4), # run 1st push out preset
-                         self.C.leftJ.getRawButton(3), # run 2nd push out preset
-                         self.C.leftJ.getRawButton(5)) # run 3rd push out preset
+                         self.C.leftJ.getRawButton(3), # open jaws
+                         self.C.leftJ.getRawButton(2), # run intake wheels out
+                         self.C.leftJ.getRawButton(4), # go to bottom
+                         self.C.leftJ.getRawAxis(2))   # set angle of jaws
 
         # Winch
         if (self.C.leftJ.getRawButton(9)):
@@ -68,11 +75,17 @@ class Randy(wpilib.TimedRobot):
         # reset gyro
         self.C.gyroS.reset()
 
+        # reset encoder
+        self.C.driveYEncoderS.reset()
+
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
         self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         # reset gyro
         self.C.gyroS.reset()
+
+        # reset encoder
+        self.C.driveYEncoderS.reset()
 
         # Init autonomous
         self.autonomousRoutine = Autonomous(self.drive, self.C.driveYEncoderS, self.C.gyroS, self.driverStation)

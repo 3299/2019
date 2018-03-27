@@ -7,120 +7,98 @@ import helpers
 from networktables import NetworkTables
 
 class MetaBox(object):
-    def __init__(self, encoderS, limitS, elevatorM, intakeM, jawsSol, pusherSol):
-        self.encoder = encoderS
-        self.limit = limitS
+    def __init__(self, elevatorEncoder, jawsEncoder, elevatorLimitS, jawsLimitS, jawsM, elevatorM, intakeM, jawsSol):
+        self.elevatorEncoder = elevatorEncoder
+        self.jawsEncoder = jawsEncoder
+        self.elevatorLimit = elevatorLimitS
+        self.jawsLimitS = jawsLimitS
+        self.jawsM = jawsM
         self.elevatorM = elevatorM
         self.intakeM = intakeM
         self.jawsSol = jawsSol
-        self.pusherSol = pusherSol
+
         self.elevatorTravel = 26.25
-        self.floorOffset = 11.25
+        self.isCalibrated = False
+
         self.sd = NetworkTables.getTable('SmartDashboard')
 
         self.pidDefault = {'p': 0.8, 'i': 0.2, 'd': 0.5}
-        self.pid = wpilib.PIDController(self.pidDefault['p'], self.pidDefault['i'], self.pidDefault['d'], lambda: self.getEncoder(), self.set)
+        self.pid = wpilib.PIDController(self.pidDefault['p'], self.pidDefault['i'], self.pidDefault['d'], lambda: self.getEncoder(), self.setElevator)
         self.pid.setAbsoluteTolerance(0.1)
         self.sd.putNumber('elevatorP', self.pidDefault['p'])
         self.sd.putNumber('elevatorI', self.pidDefault['i'])
         self.sd.putNumber('elevatorD', self.pidDefault['d'])
 
-        # Toggles for mechanisms
-        self.runInT = helpers.timeToggle()
-        self.pushOut1T = helpers.timeToggle()
-        self.pushOut2T = helpers.timeToggle()
-        self.pushOut3T = helpers.timeToggle()
-
-    def run(self, heightRate, runIn, pushOut1, pushOut2, pushOut3):
+    def run(self, heightRate, runIn, open, runOut, bottom, angle):
         '''
         Intended to be called with a periodic loop
         and with button toggles.
         '''
-        # set elevator
-        self.set(heightRate)
-
-        if (runIn or self.runInT.get()):
-            # intake cube
-            self.jawsSol.set(self.jawsSol.Value.kForward)
+        
+        if (runIn and self.jawsLimitS.get() == False):
             self.intakeM.set(1)
-
-            self.runInT.start(runIn, 2)
-
-        elif (pushOut1 or self.pushOut1T.get()):
-            # open jaws
-            self.jawsSol.set(self.jawsSol.Value.kForward)
-
-            self.pushOut1T.start(pushOut1, 2)
-
-        elif (pushOut2 or self.pushOut2T.get()):
-            # run wheels
-            self.running = 'pushOut2'
+        elif (runOut):
             self.intakeM.set(-1)
-
-            self.pushOut2T.start(pushOut2, 2)
-
-        elif (pushOut3 or self.pushOut3T.get()):
-            # use pusher
-            self.pusherSol.set(self.pusherSol.Value.kForward)
-
-            #self.pushOut3T.(pushOut3, 3)
-
-            self.pusherT = helpers.timeToggle()
-            self.wheelsT = helpers.timeToggle()
-            self.jawsT = helpers.timeToggle()
-
-            if (self.pusherT.get()):
-                # run wheels
-                self.intakeM.set(-1)
-                wheelsTimer = wpilib.Timer()
-
-                if (self.wheelsT.get()):
-                    # open jaws
-                    self.jawsSol.set(self.jawsSol.Value.kForward)
-                    jawsTimer = wpilib.timer()
-
-                    if (self.jawsT.get()):
-                        self.running = ''
-
         else:
-            # close jaws and stop intake
-            self.jawsSol.set(self.jawsSol.Value.kReverse)
-            self.pusherSol.set(self.pusherSol.Value.kReverse)
             self.intakeM.set(0)
 
+        if (open):
+            self.jawsSol.set(self.jawsSol.Value.kForward)
+        else:
+            self.jawsSol.set(self.jawsSol.Value.kReverse)
+
+        if (bottom):
+            self.goToHeight(0)
+        else:
+            self.setElevator(heightRate)
+
+        self.jawsM.set(helpers.deadband(angle, 0.1))
+
     ''' Functions that want to move the elevator should call this instead of elevatorM.set() directly. '''
-    def set(self, value):
-        if ((self.limit.get() == False or (self.limit.get() == True and value < 0)) and self.getEncoder() > 0):
+    def setElevator(self, value):
+        if ((self.elevatorLimit.get() == False or (self.elevatorLimit.get() == True and value < 0)) and self.getEncoder() > 0):
             self.elevatorM.set(value)
         else:
             self.elevatorM.set(0)
             return False
 
+    ''' Functions that want to move the jaws should call this instead of jawsM.set() directly. '''
+    def setJaws(self, value):
+        if (self.jawsEncoder.getDistance() >= 0):
+            self.jawsM.set(value)
+        else:
+            self.jawsM.set(0)
+            return False
+
     def getEncoder(self):
-        return self.encoder.getDistance() + self.elevatorTravel
+        return self.elevatorEncoder.getDistance() + self.elevatorTravel
 
     def goToHeight(self, height, continuous=False):
         self.pid.setP(self.sd.getNumber('elevatorP', self.pidDefault['p']))
         self.pid.setI(self.sd.getNumber('elevatorI', self.pidDefault['i']))
         self.pid.setD(self.sd.getNumber('elevatorD', self.pidDefault['d']))
 
-        if (height - self.floorOffset < 0 or height > self.floorOffset + self.elevatorTravel):
+        if (self.isCalibrated != True):
             return False
-        elif (self.limit.get() == True):
+
+        if (height < 0 or height > self.elevatorTravel):
+            return False
+        elif (self.elevatorLimit.get() == True):
             self.pid.disable()
         else:
             self.pid.setContinuous(continuous)
             self.pid.enable()
-            self.pid.setSetpoint(height - self.floorOffset)
+            self.pid.setSetpoint(height)
 
         if (self.pid.onTarget() and continuous == False):
             self.pid.disable()
 
     def calibrateAsync(self):
-        if (self.limit.get() == False):
+        if (self.elevatorLimit.get() == False):
             self.elevatorM.set(0.4)
             return False
         else:
+            self.isCalibrated = True
             self.elevatorM.set(0)
-            self.encoder.reset()
+            self.elevatorEncoder.reset()
             return True

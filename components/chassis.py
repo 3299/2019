@@ -49,7 +49,7 @@ class Chassis(object):
     def run(self, x, y, rotation):
         '''Intended for use in telelop. Use .cartesian for auto.'''
         # Map joystick values to curve
-        x = self.curve(x)
+        x = -self.curve(x)
         y = self.curve(y)
         rotation = helpers.deadband(-rotation * 0.5, 0.1)
 
@@ -144,14 +144,15 @@ class Chassis(object):
             self.toDistanceFirstCall = False
 
         self.pidY.setContinuous(False)
-        self.pidY.setAbsoluteTolerance(0.1)
         self.pidY.setSetpoint(distance)
         self.pidY.enable()
+        
+        print(self.pidY.getError())
 
-        if (self.pidY.onTarget()):
+        if (self.pidY.getError() < 0.2):
             self.pidY.disable()
             self.toDistanceFirstCall = True
             return True
         else:
-            self.cartesian(0, self.pidYRate, 0)
+            self.cartesian(0, -self.pidYRate, 0)
             return False
