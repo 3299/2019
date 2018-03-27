@@ -51,7 +51,7 @@ class Autonomous(object):
         #     self.state += 1
 
         if (self.state == 0):
-            if (self.drive.toDistance(6)):
+            if (self.drive.toDistance(10)):
                 self.state += 1
         if (self.state == 1):
             if (self.drive.toAngle(45)):

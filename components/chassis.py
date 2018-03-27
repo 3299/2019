@@ -16,9 +16,6 @@ class Chassis(object):
         self.jDeadband      = 0.06
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
-        # Boundary on speed (in / sec)
-        self.maxSpeed = 37.5
-
         # PID loop for angle
         self.useAnglePID = False
 
@@ -33,8 +30,6 @@ class Chassis(object):
         self.wasRotating = False
 
         # PID loop for Cartesian Y direction
-        self.useYPID = False
-
         self.pidYDefault = {'p': 0.15, 'i': 0, 'd': 0.05}
         self.sd.putNumber('pidYP', self.pidYDefault['p'])
         self.sd.putNumber('pidYI', self.pidYDefault['i'])
@@ -45,6 +40,7 @@ class Chassis(object):
 
         self.toDistanceFirstCall = True
         self.toAngleFirstCall = True
+        self.lastAngle = 0
 
     def run(self, x, y, rotation):
         '''Intended for use in telelop. Use .cartesian for auto.'''
@@ -53,12 +49,12 @@ class Chassis(object):
         y = self.curve(y)
         rotation = helpers.deadband(-rotation * 0.5, 0.1)
 
+        # write manipulated values to motors
+        self.cartesian(x, y, rotation)
+
+    def cartesian(self, x, y, rotation):
         """Uses the gryo to compensate for bad design :P"""
         if (self.useAnglePID != False):
-            self.sd.putBoolean('wasrotating', self.wasRotating)
-            self.pidAngle.setP(self.sd.getNumber("P", 0.03))
-            self.pidAngle.setI(self.sd.getNumber("I", 0))
-            self.pidAngle.setD(self.sd.getNumber("D", 0.1))
             if rotation == 0:
                 # reset gryo when rotation stops
                 if (self.wasRotating):
@@ -68,22 +64,12 @@ class Chassis(object):
                     # PID controller
                     self.pidAngle.setSetpoint(0)
                     self.pidAngle.enable()
-                    self.pidAngle.setContinuous(True)
+                    #self.pidAngle.setContinuous(True)
                     rotation = -self.pidRotateRate
                 else:
                     # if there's non-zero rotation input from the joystick, don't run the PID loop
                     self.wasRotating = True
 
-                    if (self.useYPID != False):
-                        mappedY = helpers.remap(y, -1, 1, -self.maxSpeed, self.maxSpeed)
-                        self.pidY.enable()
-                        self.pidY.setSetpoint(mappedY)
-                        y = self.pidYRate
-
-        # write manipulated values to motors
-        self.cartesian(x, y, rotation)
-
-    def cartesian(self, x, y, rotation):
         # assign speeds
         speeds = [0] * 4
         speeds[0] =  x + y + rotation # front left
@@ -139,6 +125,7 @@ class Chassis(object):
         if (self.pidAngle.getError() < 2):
             self.pidAngle.disable()
             self.toAngleFirstCall = True
+            self.lastAngle = angle
             return True
         else:
             self.cartesian(0, 0, -self.pidRotateRate)
@@ -154,12 +141,15 @@ class Chassis(object):
         self.pidY.setSetpoint(distance)
         self.pidY.enable()
 
-        print(self.pidY.getError())
+        # simple P for rotation
+        rotation = helpers.remap((self.lastAngle - self.gyro.getAngle()), -180, 180, -1, 1)
+        rotation = rotation * 1
+        print(rotation)
 
         if (self.pidY.getError() < 0.2):
             self.pidY.disable()
             self.toDistanceFirstCall = True
             return True
         else:
-            self.cartesian(0, -self.pidYRate, 0)
+            self.cartesian(0, -self.pidYRate, -rotation)
             return False
