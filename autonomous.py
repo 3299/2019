@@ -14,7 +14,14 @@ class Autonomous(object):
         self.state = 0
 
     def run(self):
+        """
+        self.driverStation.getGameSpecificMessage()
+        if(self.driveStation.getGameSpecificMessage() == "")
+            return False
+        else
+        target == self.driveStation.getGameSpecificMessage()
         # Square driving example
+        """
         '''
         if (self.state == 0):
             if (self.drive.toDistance(4)):
@@ -51,8 +58,13 @@ class Autonomous(object):
         #     self.state += 1
 
         if (self.state == 0):
-            if (self.drive.toDistance(10)):
+            if (self.drive.toDistance(8.5)):
                 self.state += 1
+        if (self.state == 1):
+            if (self.metabox.runOutAuto(2)):
+                self.state += 1
+
+        """
         if (self.state == 1):
             if (self.drive.toAngle(45)):
                 self.state += 1
@@ -74,3 +86,4 @@ class Autonomous(object):
         if (self.state == 7):
             if (self.drive.toAngle(-180)):
                 self.state += 1
+        """
