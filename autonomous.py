@@ -51,7 +51,7 @@ class Autonomous(object):
 
         self.drive.cartesian(0, velocity, turn)
         '''
-
+"""
         if (self.state == 0):
             if (self.drive.toDistance(6)):
                 self.state += 1
@@ -60,4 +60,29 @@ class Autonomous(object):
                 self.state += 1
         if (self.state == 2):
             if (self.drive.toDistance(10)):
+                self.state += 1
+"""
+        if (self.state == 0):
+            if (self.drive.toDistance(6)):
+                self.state += 1
+        if (self.state == 1):
+            if (self.drive.toAngle(45)):
+                self.state += 1
+        if (self.state == 2):
+            if (self.drive.toDistance(10)):
+                self.state += 1
+        if (self.state == 3):
+            if (self.drive.toAngle(0)):
+                self.state += 1
+        if (self.state == 4):
+            if (self.drive.toDistance(6)):
+                self.state += 1
+        if (self.state == 5):
+            if (self.drive.toAngle(-90)):
+                self.state += 1
+        if (self.state == 6):
+            if (self.drive.toDistance(10)):
+                self.state += 1
+        if (self.state == 7):
+        if (self.drive.toAngle(-180)):
                 self.state += 1
