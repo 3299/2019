@@ -89,6 +89,9 @@ class Randy(wpilib.TimedRobot):
         # Init autonomous
         self.autonomousRoutine = Autonomous(self.drive, self.C.driveYEncoderS, self.C.gyroS, self.metabox, self.driverStation)
 
+        # reset state
+        self.autonomousRoutine.state = 0
+        
     def autonomousPeriodic(self):
         self.autonomousRoutine.run() # see autonomous.py
 
