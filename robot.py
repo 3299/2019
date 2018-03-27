@@ -44,6 +44,7 @@ class Randy(wpilib.TimedRobot):
         """This function is called periodically during operator control."""
         '''Components'''
         # Drive
+        print(self.C.driveYEncoderS.getDistance())
         self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
 
         # MetaBox
