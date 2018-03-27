@@ -22,13 +22,12 @@ class Chassis(object):
         # PID loop for angle
         self.useAnglePID = False
 
-        self.pidAngleDefault = {'p': 0.03, 'i': 0, 'd': 0.1}
+        self.pidAngleDefault = {'p': 0.01, 'i': 0, 'd': 0.004}
         self.sd.putNumber('pidAngleP', self.pidAngleDefault['p'])
         self.sd.putNumber('pidAngleI', self.pidAngleDefault['i'])
         self.sd.putNumber('pidAngleD', self.pidAngleDefault['d'])
 
         self.pidAngle = wpilib.PIDController(self.pidAngleDefault['p'], self.pidAngleDefault['i'], self.pidAngleDefault['d'], self.gyro, self.updateAnglePID)
-        self.pidAngle.setOutputRange(-1.0, 1.0)
         self.pidAngle.setAbsoluteTolerance(2)
         self.pidRotateRate = 0
         self.wasRotating = False
@@ -36,7 +35,7 @@ class Chassis(object):
         # PID loop for Cartesian Y direction
         self.useYPID = False
 
-        self.pidYDefault = {'p': 0.08, 'i': 0, 'd': 0}
+        self.pidYDefault = {'p': 0.15, 'i': 0, 'd': 0.05}
         self.sd.putNumber('pidYP', self.pidYDefault['p'])
         self.sd.putNumber('pidYI', self.pidYDefault['i'])
         self.sd.putNumber('pidYD', self.pidYDefault['d'])
@@ -45,6 +44,7 @@ class Chassis(object):
         self.pidYRate = 0
 
         self.toDistanceFirstCall = True
+        self.toAngleFirstCall = True
 
     def run(self, x, y, rotation):
         '''Intended for use in telelop. Use .cartesian for auto.'''
@@ -110,9 +110,9 @@ class Chassis(object):
         self.pidRotateRate = value
 
     def updateYPID(self, value):
-        self.pidY.setP(self.sd.getNumber('pidP', self.pidYDefault['p']))
-        self.pidY.setI(self.sd.getNumber('pidI', self.pidYDefault['i']))
-        self.pidY.setD(self.sd.getNumber('pidD', self.pidYDefault['d']))
+        self.pidY.setP(self.sd.getNumber('pidYP', self.pidYDefault['p']))
+        self.pidY.setI(self.sd.getNumber('pidYI', self.pidYDefault['i']))
+        self.pidY.setD(self.sd.getNumber('pidYD', self.pidYDefault['d']))
 
         self.pidYRate = value
 
@@ -125,16 +125,23 @@ class Chassis(object):
 
         return (math.sin(value) / math.sin(1));
 
-    def toAngle(self, angle):
+    def toAngle(self, angle, reset=False):
         """Intended for use in auto."""
+        if (self.toAngleFirstCall and reset == True):
+            self.gyro.reset()
+            self.toAngleFirstCall = False
+
         self.pidAngle.setSetpoint(angle)
         self.pidAngle.enable()
 
-        if (self.pidAngle.onTarget()):
+        print(self.pidAngle.getError())
+
+        if (self.pidAngle.getError() < 2):
             self.pidAngle.disable()
+            self.toAngleFirstCall = True
             return True
         else:
-            self.cartesian(0, 0, self.pidRotateRate)
+            self.cartesian(0, 0, -self.pidRotateRate)
             return False
 
     def toDistance(self, distance):
@@ -146,7 +153,7 @@ class Chassis(object):
         self.pidY.setContinuous(False)
         self.pidY.setSetpoint(distance)
         self.pidY.enable()
-        
+
         print(self.pidY.getError())
 
         if (self.pidY.getError() < 0.2):

@@ -34,10 +34,10 @@ class PhysicsEngine(object):
         # Simulate the drivetrain
         # -> Remember, in the constructor we inverted the left motors, so
         #    invert the motor values here too!
-        lr_motor = -hal_data['pwm'][6]['value']
-        rr_motor = hal_data['pwm'][5]['value']
-        lf_motor = -hal_data['pwm'][7]['value']
-        rf_motor = hal_data['pwm'][3]['value']
+        lr_motor = hal_data['pwm'][6]['value']
+        rr_motor = -hal_data['pwm'][5]['value']
+        lf_motor = hal_data['pwm'][7]['value']
+        rf_motor = -hal_data['pwm'][3]['value']
 
         vx, vy, vw = drivetrains.mecanum_drivetrain(lr_motor, rr_motor, lf_motor, rf_motor)
         self.physics_controller.vector_drive(vx, vy, vw, tm_diff)

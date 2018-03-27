@@ -74,7 +74,6 @@ class Randy(wpilib.TimedRobot):
         """This function is run once each time the robot enters teleop mode."""
         # reset gyro
         self.C.gyroS.reset()
-
         # reset encoder
         self.C.driveYEncoderS.reset()
 
@@ -83,15 +82,20 @@ class Randy(wpilib.TimedRobot):
         self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         # reset gyro
         self.C.gyroS.reset()
-
         # reset encoder
         self.C.driveYEncoderS.reset()
 
         # Init autonomous
-        self.autonomousRoutine = Autonomous(self.drive, self.C.driveYEncoderS, self.C.gyroS, self.driverStation)
+        self.autonomousRoutine = Autonomous(self.drive, self.C.driveYEncoderS, self.C.gyroS, self.metabox, self.driverStation)
 
     def autonomousPeriodic(self):
         self.autonomousRoutine.run() # see autonomous.py
+
+    def test(self):
+        # reset gyro
+        self.C.gyroS.reset()
+        # reset encoder
+        self.C.driveYEncoderS.reset()
 
 if __name__ == "__main__":
     wpilib.run(Randy)

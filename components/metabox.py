@@ -29,12 +29,15 @@ class MetaBox(object):
         self.sd.putNumber('elevatorI', self.pidDefault['i'])
         self.sd.putNumber('elevatorD', self.pidDefault['d'])
 
-    def run(self, heightRate, runIn, open, runOut, bottom, angle):
+        self.timer = wpilib.Timer()
+        self.autoActionStarted = False
+
+    def run(self, heightRate, runIn, open, runOut, bottom, angle, timed=False):
         '''
         Intended to be called with a periodic loop
         and with button toggles.
         '''
-        
+
         if (runIn and self.jawsLimitS.get() == False):
             self.intakeM.set(1)
         elif (runOut):
@@ -53,6 +56,20 @@ class MetaBox(object):
             self.setElevator(heightRate)
 
         self.jawsM.set(helpers.deadband(angle, 0.1))
+
+    def runOutAuto(self, time):
+        if (self.autoActionStarted == False):
+            self.timer.start()
+            self.autoActionStarted = True
+
+        if (self.timer.hasPeriodPassed(time)):
+            self.autoActionStarted = False
+            self.intakeM.set(0)
+            return True
+        else:
+            self.intakeM.set(-1)
+            return False
+
 
     ''' Functions that want to move the elevator should call this instead of elevatorM.set() directly. '''
     def setElevator(self, value):
