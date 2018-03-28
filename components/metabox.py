@@ -7,11 +7,11 @@ import helpers
 from networktables import NetworkTables
 
 class MetaBox(object):
-    def __init__(self, elevatorEncoder, jawsEncoder, elevatorLimitS, jawsLimitS, jawsM, elevatorM, intakeM, jawsSol):
+    def __init__(self, elevatorEncoder, elevatorLimitS, jawsLimitS, metaboxLimitS, jawsM, elevatorM, intakeM, jawsSol):
         self.elevatorEncoder = elevatorEncoder
-        self.jawsEncoder = jawsEncoder
         self.elevatorLimit = elevatorLimitS
         self.jawsLimitS = jawsLimitS
+        self.metaboxLimitS = metaboxLimitS
         self.jawsM = jawsM
         self.elevatorM = elevatorM
         self.intakeM = intakeM
@@ -32,13 +32,15 @@ class MetaBox(object):
         self.timer = wpilib.Timer()
         self.autoActionStarted = False
 
-    def run(self, heightRate, runIn, open, runOut, bottom, angle, timed=False):
+    def run(self, heightRate, runIn, open, runOut, bottom, angle, calibrate):
         '''
         Intended to be called with a periodic loop
         and with button toggles.
         '''
 
-        if (runIn and self.jawsLimitS.get() == False):
+        self.calibrateSync()
+
+        if (runIn and self.jawsLimitS.get()):
             self.intakeM.set(1)
         elif (runOut):
             self.intakeM.set(-1)
@@ -53,9 +55,12 @@ class MetaBox(object):
         if (bottom):
             self.goToHeight(0)
         else:
-            self.setElevator(heightRate)
+            if (calibrate):
+                self.calibrateAsync()
+            else:
+                self.setElevator(heightRate)
 
-        self.jawsM.set(helpers.deadband(angle, 0.1))
+        self.setJaws(helpers.deadband(angle, 0.1))
 
     def runOutAuto(self, time):
         if (self.autoActionStarted == False):
@@ -73,7 +78,14 @@ class MetaBox(object):
 
     ''' Functions that want to move the elevator should call this instead of elevatorM.set() directly. '''
     def setElevator(self, value):
-        if ((self.elevatorLimit.get() == False or (self.elevatorLimit.get() == True and value < 0)) and self.getEncoder() > 0):
+        # only move if
+        # (limit isn't actived or value < 0)
+        # (encoder is > 0 or value is > 0)
+        # is calibrated
+        if ((self.elevatorLimit.get() == False or value < 0) # if limit isn't activated
+             and (self.getEncoder() > 0 or value > 0)        # and encoder is more than 0
+             ):                 # and is calibrated
+
             self.elevatorM.set(value)
         else:
             self.elevatorM.set(0)
@@ -81,7 +93,7 @@ class MetaBox(object):
 
     ''' Functions that want to move the jaws should call this instead of jawsM.set() directly. '''
     def setJaws(self, value):
-        if (self.jawsEncoder.getDistance() >= 0):
+        if (self.metaboxLimitS.get() == True or value < 0):
             self.jawsM.set(value)
         else:
             self.jawsM.set(0)
@@ -117,5 +129,11 @@ class MetaBox(object):
         else:
             self.isCalibrated = True
             self.elevatorM.set(0)
+            self.elevatorEncoder.reset()
+            return True
+
+    def calibrateSync(self):
+        if (self.elevatorLimit.get() == True):
+            self.isCalibrated = True
             self.elevatorEncoder.reset()
             return True

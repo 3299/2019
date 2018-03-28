@@ -20,6 +20,7 @@ class Map(object):
         # DIO
         self.elevatorLimitS = 0
         self.jawsLimitS = 1
+        self.metaboxLimitS = 6
 
         # Soleniods
         self.jawsSol = {'out': 2, 'in': 3}

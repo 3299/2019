@@ -23,9 +23,9 @@ class Randy(wpilib.TimedRobot):
         self.drive = Chassis(self.C.driveTrain, self.C.gyroS, self.C.driveYEncoderS)
         self.lights = Lights()
         self.metabox = MetaBox(self.C.elevatorEncoderS,
-                               self.C.jawsEncoderS,
                                self.C.elevatorLimitS,
                                self.C.jawsLimitS,
+                               self.C.metaboxLimitS,
                                self.C.jawsM,
                                self.C.elevatorM,
                                self.C.intakeM,
@@ -44,16 +44,16 @@ class Randy(wpilib.TimedRobot):
         """This function is called periodically during operator control."""
         '''Components'''
         # Drive
-        print(self.C.driveYEncoderS.getDistance())
         self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
-
+        
         # MetaBox
         self.metabox.run(self.C.leftJ.getY(),          # elevator rate of change
                          self.C.leftJ.getRawButton(1), # run intake wheels in
                          self.C.leftJ.getRawButton(3), # open jaws
                          self.C.leftJ.getRawButton(2), # run intake wheels out
                          self.C.leftJ.getRawButton(4), # go to bottom
-                         self.C.leftJ.getRawAxis(2))   # set angle of jaws
+                         self.C.leftJ.getRawAxis(2),   # set angle of jaws
+                         self.C.leftJ.getRawButton(8)) # calibrate elevator
 
         # Winch
         if (self.C.leftJ.getRawButton(9)):

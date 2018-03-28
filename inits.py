@@ -33,6 +33,7 @@ class Component(object):
         self.gyroS = wpilib.AnalogGyro(Mapping.gyroS)
         self.elevatorLimitS = wpilib.DigitalInput(Mapping.elevatorLimitS)
         self.jawsLimitS = wpilib.DigitalInput(Mapping.jawsLimitS)
+        self.metaboxLimitS = wpilib.DigitalInput(Mapping.metaboxLimitS)
 
         # Encoders
         self.elevatorEncoderS = wpilib.Encoder(7, 8, True)
@@ -40,6 +41,3 @@ class Component(object):
 
         self.driveYEncoderS = wpilib.Encoder(2, 3)
         self.driveYEncoderS.setDistancePerPulse(0.015708)
-
-        self.jawsEncoderS = wpilib.Encoder(5, 6)
-        self.jawsEncoderS.setDistancePerPulse(0.1769)

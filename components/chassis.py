@@ -17,8 +17,6 @@ class Chassis(object):
         self.sd             = NetworkTables.getTable('SmartDashboard')
 
         # PID loop for angle
-        self.useAnglePID = False
-
         self.pidAngleDefault = {'p': 0.01, 'i': 0, 'd': 0.004}
         self.sd.putNumber('pidAngleP', self.pidAngleDefault['p'])
         self.sd.putNumber('pidAngleI', self.pidAngleDefault['i'])
@@ -43,33 +41,16 @@ class Chassis(object):
         self.lastAngle = 0
 
     def run(self, x, y, rotation):
-        '''Intended for use in telelop. Use .cartesian for auto.'''
+        '''Intended for use in telelop. Use .cartesian() for auto.'''
         # Map joystick values to curve
-        x = -self.curve(x)
-        y = self.curve(y)
+        x = self.curve(helpers.deadband(x, 0.3))
+        y = self.curve(helpers.deadband(y, 0.1))
         rotation = helpers.deadband(-rotation * 0.5, 0.1)
 
         # write manipulated values to motors
-        self.cartesian(x, y, rotation)
+        self.cartesian(-x, y, rotation)
 
     def cartesian(self, x, y, rotation):
-        """Uses the gryo to compensate for bad design :P"""
-        if (self.useAnglePID != False):
-            if rotation == 0:
-                # reset gryo when rotation stops
-                if (self.wasRotating):
-                    self.gyro.reset()
-                    self.wasRotating = False
-
-                    # PID controller
-                    self.pidAngle.setSetpoint(0)
-                    self.pidAngle.enable()
-                    #self.pidAngle.setContinuous(True)
-                    rotation = -self.pidRotateRate
-                else:
-                    # if there's non-zero rotation input from the joystick, don't run the PID loop
-                    self.wasRotating = True
-
         # assign speeds
         speeds = [0] * 4
         speeds[0] =  x + y + rotation # front left
