@@ -103,7 +103,7 @@ class Chassis(object):
 
         print(self.pidAngle.getError())
 
-        if (self.pidAngle.getError() < 2):
+        if (self.pidAngle.getError() < 0.5):
             self.pidAngle.disable()
             self.toAngleFirstCall = True
             self.lastAngle = angle
@@ -125,9 +125,9 @@ class Chassis(object):
         # simple P for rotation
         rotation = helpers.remap((self.lastAngle - self.gyro.getAngle()), -180, 180, -1, 1)
         rotation = rotation * 1
-        print(rotation)
-
-        if (self.pidY.getError() < 0.2):
+        print(self.pidY.getError())
+        rotation = 0
+        if (self.pidY.getError() < 0.05):
             self.pidY.disable()
             self.toDistanceFirstCall = True
             return True
