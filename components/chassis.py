@@ -4,8 +4,6 @@ Drives. Can accept input from joysticks or values [-1, 1].
 import helpers
 import wpilib
 import math
-import time
-import hal
 from networktables import NetworkTables
 
 class Chassis(object):
@@ -51,6 +49,7 @@ class Chassis(object):
         self.cartesian(-x, y, rotation)
 
     def cartesian(self, x, y, rotation):
+        x = 0
         # assign speeds
         speeds = [0] * 4
         speeds[0] =  x + y + rotation # front left
@@ -129,6 +128,7 @@ class Chassis(object):
         rotation = 0
         if (self.pidY.getError() < 0.05):
             self.pidY.disable()
+            self.cartesian(0, 0, 0)
             self.toDistanceFirstCall = True
             return True
         else:

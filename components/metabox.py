@@ -112,7 +112,7 @@ class MetaBox(object):
 
         if (height < 0 or height > self.elevatorTravel):
             return False
-        elif (self.elevatorLimit.get() == True):
+        elif (self.elevatorLimit.get() == True and self.pid.get() > 0):
             self.pid.disable()
         else:
             self.pid.setContinuous(continuous)
@@ -136,4 +136,12 @@ class MetaBox(object):
         if (self.elevatorLimit.get() == True):
             self.isCalibrated = True
             self.elevatorEncoder.reset()
+            return True
+
+    def calibrateJawsSync(self):
+        if (self.metaboxLimitS.get() == True):
+            self.jawsM.set(0.3)
+            return False
+        else:
+            self.jawsM.set(0)
             return True

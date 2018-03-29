@@ -34,8 +34,8 @@ class Randy(wpilib.TimedRobot):
         self.power = Power()
 
         # Joysticks
-        self.C.joystick = wpilib.XboxController(0)
-        self.C.leftJ = wpilib.Joystick(1)
+        self.joystick = wpilib.XboxController(0)
+        self.leftJ = wpilib.Joystick(1)
 
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
@@ -43,20 +43,24 @@ class Randy(wpilib.TimedRobot):
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
         '''Components'''
+        # Rumble
+        if (self.power.getAverageCurrent([1, 2, 3, 4]) > 20):
+            self.joystick.setRumble(0, 1)
+
         # Drive
-        self.drive.run(self.C.joystick.getRawAxis(0), self.C.joystick.getRawAxis(1), self.C.joystick.getRawAxis(4))
-        
+        self.drive.run(self.joystick.getRawAxis(0), self.joystick.getRawAxis(1), self.joystick.getRawAxis(4))
+
         # MetaBox
-        self.metabox.run(self.C.leftJ.getY(),          # elevator rate of change
-                         self.C.leftJ.getRawButton(1), # run intake wheels in
-                         self.C.leftJ.getRawButton(3), # open jaws
-                         self.C.leftJ.getRawButton(2), # run intake wheels out
-                         self.C.leftJ.getRawButton(4), # go to bottom
-                         self.C.leftJ.getRawAxis(2),   # set angle of jaws
-                         self.C.leftJ.getRawButton(8)) # calibrate elevator
+        self.metabox.run(self.leftJ.getY(),          # elevator rate of change
+                         self.leftJ.getRawButton(1), # run intake wheels in
+                         self.leftJ.getRawButton(3), # open jaws
+                         self.leftJ.getRawButton(2), # run intake wheels out
+                         self.leftJ.getRawButton(4), # go to bottom
+                         self.leftJ.getRawAxis(2),   # set angle of jaws
+                         self.leftJ.getRawButton(8)) # calibrate elevator
 
         # Winch
-        if (self.C.leftJ.getRawButton(9)):
+        if (self.leftJ.getRawButton(9)):
             self.winch.run(1)
         else:
             self.winch.run(0)
@@ -66,7 +70,7 @@ class Randy(wpilib.TimedRobot):
 
         if (self.driverStation.getMatchTime() < 30 and self.driverStation.getMatchTime() != -1):
             self.lights.run({'effect': 'flash', 'fade': True, 'speed': 255})
-        elif (helpers.deadband(self.C.leftJ.getY(), 0.1) != 0):
+        elif (helpers.deadband(self.leftJ.getY(), 0.1) != 0):
             self.lights.run({'effect': 'stagger'})
         else:
             self.lights.run({'effect': 'rainbow'})
@@ -91,7 +95,7 @@ class Randy(wpilib.TimedRobot):
 
         # reset state
         self.autonomousRoutine.state = 0
-        
+
     def autonomousPeriodic(self):
         self.autonomousRoutine.run() # see autonomous.py
 
