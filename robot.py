@@ -14,6 +14,8 @@ from components.metabox import MetaBox
 from components.winch import Winch
 from components.pdb import Power
 
+from networktables import NetworkTables
+
 class Randy(wpilib.TimedRobot):
     def robotInit(self):
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
@@ -40,12 +42,23 @@ class Randy(wpilib.TimedRobot):
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
+        self.sd = NetworkTables.getTable('SmartDashboard')
+        self.sd.putNumber('station', 2)
+
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
         '''Components'''
         # Rumble
-        if (self.power.getAverageCurrent([1, 2, 3, 4]) > 20):
+        averageDriveCurrent = self.power.getAverageCurrent([0, 1, 14, 15])
+        if (averageDriveCurrent > 8):
             self.joystick.setRumble(0, 1)
+        else:
+            self.joystick.setRumble(0, 0)
+        print(self.metabox.getEncoder())
+
+        '''
+        TODO: calibrate sparks
+        '''
 
         # Drive
         self.drive.run(self.joystick.getRawAxis(0), self.joystick.getRawAxis(1), self.joystick.getRawAxis(4))
@@ -59,19 +72,15 @@ class Randy(wpilib.TimedRobot):
                          self.leftJ.getRawAxis(2),   # set angle of jaws
                          self.leftJ.getRawButton(8)) # calibrate elevator
 
-        # Winch
-        if (self.leftJ.getRawButton(9)):
-            self.winch.run(1)
-        else:
-            self.winch.run(0)
-
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
 
         if (self.driverStation.getMatchTime() < 30 and self.driverStation.getMatchTime() != -1):
-            self.lights.run({'effect': 'flash', 'fade': True, 'speed': 255})
+            self.lights.run({'effect': 'flash', 'fade': True, 'speed': 200})
         elif (helpers.deadband(self.leftJ.getY(), 0.1) != 0):
             self.lights.run({'effect': 'stagger'})
+        elif (self.leftJ.getRawButton(1) or self.leftJ.getRawButton(2)):
+            self.lights.run({'effect': 'flash', 'fade': False, 'speed': 20})
         else:
             self.lights.run({'effect': 'rainbow'})
 

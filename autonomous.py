@@ -14,9 +14,7 @@ class Autonomous(object):
         self.sd = NetworkTables.getTable('SmartDashboard')
         self.state = 0
 
-        self.sd.putNumber('station', 1)
-
-        self.elevatorCalibrated = False
+        self.jawsCalibrated = False
 
     def run(self):
         ##############
@@ -30,66 +28,31 @@ class Autonomous(object):
         #############
         # Calibrate #
         #############
-        if (self.metabox.calibrateJawsSync()):
-            pass
-
-        if (self.elevatorCalibrated == False):
-            if (self.metabox.calibrateAsync()):
-                self.elevatorCalibrated = True
+        # Move elevator to top
+        if (self.metabox.isCalibrated == False):
+            self.metabox.calibrateSync()
         else:
-            self.metabox.goToHeight(15)
+            # Move jaws to bottom
+            if (self.jawsCalibrated == False):
+                if (self.metabox.calibrateJawsSync() == True):
+                    self.jawsCalibrated = True
+            else:
+                self.metabox.jawsM.set(0)
 
         ########
         # Move #
         ########
+        print(target)
         if ((target == 'L' and self.sd.getNumber('station', 1) == 1) or
-             target == 'R' and self.sd.getNumber('station', 1) == 3):
+             (target == 'R' and self.sd.getNumber('station', 1) == 3)):
             # go forward and dump cube
             if (self.state == 0):
-                if (self.drive.toDistance(8.5)):
+                if (self.drive.toTime(6, 0.3)):
                     self.state += 1
             if (self.state == 1):
-                if (self.metabox.runOutAuto(2)):
+                if (self.metabox.openAuto(2)):
                     self.state += 1
-        elif (self.sd.getNumber('station', 1) == 2):
+        else:
             if (self.state == 0):
-                if (self.drive.toDistance(8.5)):
+                if (self.drive.toTime(6, 0.3)):
                     self.state += 1
-
-        '''
-        # Example for jaws
-        # if (self.state == 0):
-        #   if (self.metabox.runOutAuto(2)):
-        #     self.state += 1
-        if(self.target == "right"):
-            if (self.state == 0):
-                if (self.drive.toDistance(8.5)):
-                    self.state += 1
-            if (self.state == 1):
-                if (self.metabox.runOutAuto(2)):
-                    self.state += 1
-        if(self.target == "left"):
-            print(self.state)
-            if (self.state == 0):
-                if (self.drive.toDistance(14)):
-                    self.state += 1
-
-            if (self.state == 1):
-                if (self.drive.toAngle(-90)):
-                    self.state += 1
-
-            if (self.state == 2):
-                if (self.drive.toDistance(14)):
-                    self.state += 1
-
-            if (self.state == 3):
-                if (self.drive.toAngle(180)):
-                    self.state += 1
-            if (self.state == 4):
-                if (self.metabox.runOutAuto(2)):
-                    self.state += 1
-        if(self.target == "test"):
-            if (self.state == 0):
-                if (self.drive.toAngle(90)):
-                    self.state += 1
-        '''

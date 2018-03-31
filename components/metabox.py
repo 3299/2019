@@ -17,7 +17,7 @@ class MetaBox(object):
         self.intakeM = intakeM
         self.jawsSol = jawsSol
 
-        self.elevatorTravel = 26.25
+        self.elevatorTravel = 26.4
         self.isCalibrated = False
 
         self.sd = NetworkTables.getTable('SmartDashboard')
@@ -38,12 +38,13 @@ class MetaBox(object):
         and with button toggles.
         '''
 
-        self.calibrateSync()
+        # if elevator is at limit switch
+        self.calibrateAsync()
 
-        if (runIn and self.jawsLimitS.get()):
-            self.intakeM.set(1)
-        elif (runOut):
+        if (runIn):
             self.intakeM.set(-1)
+        elif (runOut):
+            self.intakeM.set(1)
         else:
             self.intakeM.set(0)
 
@@ -56,7 +57,7 @@ class MetaBox(object):
             self.goToHeight(0)
         else:
             if (calibrate):
-                self.calibrateAsync()
+                self.calibrateSync()
             else:
                 self.setElevator(heightRate)
 
@@ -72,7 +73,20 @@ class MetaBox(object):
             self.intakeM.set(0)
             return True
         else:
-            self.intakeM.set(-1)
+            self.intakeM.set(1)
+            return False
+
+    def openAuto(self, time):
+        if (self.autoActionStarted == False):
+            self.timer.start()
+            self.autoActionStarted = True
+
+        if (self.timer.hasPeriodPassed(time)):
+            self.autoActionStarted = False
+            self.jawsSol.set(self.jawsSol.Value.kReverse)
+            return True
+        else:
+            self.jawsSol.set(self.jawsSol.Value.kForward)
             return False
 
 
@@ -82,10 +96,9 @@ class MetaBox(object):
         # (limit isn't actived or value < 0)
         # (encoder is > 0 or value is > 0)
         # is calibrated
-        if ((self.elevatorLimit.get() == False or value < 0) # if limit isn't activated
-             and (self.getEncoder() > 0 or value > 0)        # and encoder is more than 0
+        if ((self.elevatorLimit.get() == True or value > 0) # if limit isn't activated
+             and (self.getEncoder() > 0 or value < 0)        # and encoder is more than 0
              ):                 # and is calibrated
-
             self.elevatorM.set(value)
         else:
             self.elevatorM.set(0)
@@ -93,14 +106,14 @@ class MetaBox(object):
 
     ''' Functions that want to move the jaws should call this instead of jawsM.set() directly. '''
     def setJaws(self, value):
-        if (self.metaboxLimitS.get() == True or value < 0):
+        if (self.jawsLimitS.get() == True or value < 0):
             self.jawsM.set(value)
         else:
             self.jawsM.set(0)
             return False
 
     def getEncoder(self):
-        return self.elevatorEncoder.getDistance() + self.elevatorTravel
+        return self.elevatorTravel - self.elevatorEncoder.getDistance()
 
     def goToHeight(self, height, continuous=False):
         self.pid.setP(self.sd.getNumber('elevatorP', self.pidDefault['p']))
@@ -112,7 +125,7 @@ class MetaBox(object):
 
         if (height < 0 or height > self.elevatorTravel):
             return False
-        elif (self.elevatorLimit.get() == True and self.pid.get() > 0):
+        elif (self.elevatorLimit.get() == False and self.pid.get() > 0):
             self.pid.disable()
         else:
             self.pid.setContinuous(continuous)
@@ -122,25 +135,24 @@ class MetaBox(object):
         if (self.pid.onTarget() and continuous == False):
             self.pid.disable()
 
-    def calibrateAsync(self):
-        if (self.elevatorLimit.get() == False):
-            self.elevatorM.set(0.4)
+    def calibrateSync(self):
+        if (self.elevatorLimit.get() == True):
+            self.elevatorM.set(-0.55)
             return False
-        else:
+        elif (self.elevatorLimit.get() == False):
             self.isCalibrated = True
             self.elevatorM.set(0)
             self.elevatorEncoder.reset()
             return True
 
-    def calibrateSync(self):
-        if (self.elevatorLimit.get() == True):
+    def calibrateAsync(self):
+        if (self.elevatorLimit.get() == False):
             self.isCalibrated = True
             self.elevatorEncoder.reset()
-            return True
 
     def calibrateJawsSync(self):
-        if (self.metaboxLimitS.get() == True):
-            self.jawsM.set(0.3)
+        if (self.jawsLimitS.get() == True):
+            self.jawsM.set(0.7)
             return False
         else:
             self.jawsM.set(0)

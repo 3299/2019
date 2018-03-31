@@ -36,12 +36,15 @@ class Chassis(object):
 
         self.toDistanceFirstCall = True
         self.toAngleFirstCall = True
+        self.toTimeFirstCall = True
         self.lastAngle = 0
+
+        self.timer = wpilib.Timer()
 
     def run(self, x, y, rotation):
         '''Intended for use in telelop. Use .cartesian() for auto.'''
         # Map joystick values to curve
-        x = self.curve(helpers.deadband(x, 0.3))
+        x = self.curve(helpers.deadband(x, 0.1))
         y = self.curve(helpers.deadband(y, 0.1))
         rotation = helpers.deadband(-rotation * 0.5, 0.1)
 
@@ -49,7 +52,6 @@ class Chassis(object):
         self.cartesian(-x, y, rotation)
 
     def cartesian(self, x, y, rotation):
-        x = 0
         # assign speeds
         speeds = [0] * 4
         speeds[0] =  x + y + rotation # front left
@@ -133,4 +135,16 @@ class Chassis(object):
             return True
         else:
             self.cartesian(0, -self.pidYRate, -rotation)
+            return False
+
+    def toTime(self, time, power):
+        if (self.toTimeFirstCall):
+            self.timer.start()
+            self.toTimeFirstCall = False
+
+        if (self.timer.hasPeriodPassed(time)):
+            self.cartesian(0, 0, 0)
+            return True
+        else:
+            self.cartesian(0, -power, 0)
             return False

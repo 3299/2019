@@ -20,10 +20,10 @@ class Component(object):
         self.driveTrain[2].setInverted(True)
 
         # Init motors
-        self.elevatorM = wpilib.Talon(Mapping.elevatorM)
+        self.elevatorM = wpilib.Spark(Mapping.elevatorM)
         self.elevatorM.setInverted(True)
-        self.winchM = wpilib.Talon(Mapping.winchM)
-        self.intakeM = wpilib.Talon(Mapping.intakeM)
+        self.winchM = wpilib.Spark(Mapping.winchM)
+        self.intakeM = wpilib.Spark(Mapping.intakeM)
         self.jawsM = wpilib.Spark(Mapping.jawsM)
 
         # Soleniods
