@@ -5,6 +5,7 @@ import wpilib
 
 from inits import Component
 import helpers
+#import cameras
 
 from components.chassis import Chassis
 
@@ -18,6 +19,7 @@ from networktables import NetworkTables
 
 class Randy(wpilib.TimedRobot):
     def robotInit(self):
+
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
         # Setup subsystems
@@ -44,6 +46,8 @@ class Randy(wpilib.TimedRobot):
 
         self.sd = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('station', 2)
+        wpilib.CameraServer.launch()
+        #cameras.main()
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
@@ -93,7 +97,7 @@ class Randy(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
+        #self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         # reset gyro
         self.C.gyroS.reset()
         # reset encoder

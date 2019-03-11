@@ -18,6 +18,7 @@ class timeToggle(object):
             self.running = True
 
     def get(self):
+
         if (not self.timer.hasPeriodPassed(self.period) and self.running == True): # will be true if timer still running
             return True
         else:
@@ -65,6 +66,7 @@ to the power, then negates it if the value was
 originally negative.
 '''
 def raiseKeepSign(value, power):
+
     newValue = value ** power
 
     if (value < 0 and newValue > 0):
@@ -79,7 +81,9 @@ number of snappable angles is determined by
 `divisions`). Intended to be used with joystick
 values.
 '''
+
 def snap(divisions, x, y):
+
     if (x == 0):
         return 0
 
@@ -90,6 +94,7 @@ def snap(divisions, x, y):
 '''
 Adds deadband to a joystick.
 '''
+
 def deadband(value, ignoreRange):
     if (abs(value) < ignoreRange and abs(value) > -ignoreRange):
         return 0
