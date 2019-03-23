@@ -22,7 +22,7 @@ class Component(object):
         # Init motors
         self.elevatorM = wpilib.Spark(Mapping.elevatorM)
         self.elevatorM.setInverted(True)
-        self.winchM = wpilib.Spark(Mapping.winchM)
+        #self.winchM = wpilib.Spark(Mapping.winchM)
         self.intakeM = wpilib.Spark(Mapping.intakeM)
         self.jawsM = wpilib.Spark(Mapping.jawsM)
         self.backLift = wpilib.Spark(Mapping.backLift)

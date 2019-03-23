@@ -12,9 +12,9 @@ from components.chassis import Chassis
 from autonomous import Autonomous
 from components.lights import Lights
 from components.metabox import MetaBox
-from components.winch import Winch
+#from components.winch import Winch
 from components.pdb import Power
-
+from components.Frontlift import Frontlift
 from networktables import NetworkTables
 
 class Randy(wpilib.TimedRobot):
@@ -34,15 +34,13 @@ class Randy(wpilib.TimedRobot):
                                self.C.elevatorM,
                                self.C.intakeM,
                                self.C.jawsSol)
-        self.winch = Winch(self.C.winchM)
+        #self.winch = Winch(self.C.winchM)
         self.power = Power()
 
         # Joysticks
         self.joystick = wpilib.XboxController(0)
         self.leftJ = wpilib.Joystick(1)
-        self.frontLift = frontLift
-        self.backLift = backLift
-        self.backWheel = backWheel
+        self.Frontlift = frontLift
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
@@ -79,27 +77,7 @@ class Randy(wpilib.TimedRobot):
                          self.leftJ.getRawAxis(2),   # set angle of jaws
                          self.leftJ.getRawButton(8)) # calibrate elevator
 
-        if (self.leftJ.getRawButton(6) or self.leftJ.getRawButton(7)
-            if (self.leftJ.getRawButton(6))
-                self.frontLift.set(0.5)
-            if (self.leftJ.getRawButton(7))
-                self.frontLift.set(-0.5)
-        else:
-            self.frontLift.set(0)
-
-        if (self.leftJ.getRawButton(10) or self.leftJ.getRawButton(11)
-            if (self.leftJ.getRawButton(10))
-                self.backLift.set(0.5)
-            if (self.leftJ.getRawButton(11))
-                self.backLift.set(-0.5)
-        else:
-            self.backLift.set(0)
-
-        if (self.leftJ.getRawButton(8))
-            self.backWheel.set(1)
-        else:
-            self.backWheel.set(0)
-
+        self.Frontlift.run()
 
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
