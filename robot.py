@@ -5,7 +5,7 @@ import wpilib
 
 from inits import Component
 import helpers
-import cameras
+#import cameras
 
 from components.chassis import Chassis
 
