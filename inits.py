@@ -25,7 +25,9 @@ class Component(object):
         self.winchM = wpilib.Spark(Mapping.winchM)
         self.intakeM = wpilib.Spark(Mapping.intakeM)
         self.jawsM = wpilib.Spark(Mapping.jawsM)
-
+        self.backLift = wpilib.Spark(Mapping.backLift)
+        self.frontLift = wpilib.Spark(Mapping.frontLift)
+        self.backWheel = wpilib.Spark(Mapping.backWheel)
         # Soleniods
         self.jawsSol = wpilib.DoubleSolenoid(Mapping.jawsSol['out'], Mapping.jawsSol['in'])
 

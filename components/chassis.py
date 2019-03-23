@@ -102,7 +102,7 @@ class Chassis(object):
         self.pidAngle.setSetpoint(angle)
         self.pidAngle.enable()
 
-        print(self.pidAngle.getError())
+        #print(self.pidAngle.getError())
 
         if (self.pidAngle.getError() < 0.5):
             self.pidAngle.disable()
@@ -126,7 +126,7 @@ class Chassis(object):
         # simple P for rotation
         rotation = helpers.remap((self.lastAngle - self.gyro.getAngle()), -180, 180, -1, 1)
         rotation = rotation * 1
-        print(self.pidY.getError())
+        #print(self.pidY.getError())
         rotation = 0
         if (self.pidY.getError() < 0.05):
             self.pidY.disable()

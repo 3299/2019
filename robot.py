@@ -5,6 +5,7 @@ import wpilib
 
 from inits import Component
 import helpers
+import cameras
 
 from components.chassis import Chassis
 
@@ -18,6 +19,7 @@ from networktables import NetworkTables
 
 class Randy(wpilib.TimedRobot):
     def robotInit(self):
+
         self.C = Component() # Components inits all connected motors, sensors, and joysticks. See inits.py.
 
         # Setup subsystems
@@ -38,13 +40,18 @@ class Randy(wpilib.TimedRobot):
         # Joysticks
         self.joystick = wpilib.XboxController(0)
         self.leftJ = wpilib.Joystick(1)
-
+        self.frontLift = frontLift
+        self.backLift = backLift
+        self.backWheel = backWheel
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
         self.sd = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('station', 2)
-
+        #wpilib.CameraServer.launch()
+        print("init works")
+        #cameras.main()
+        #print("USB1 status is" usb1.isConnected())
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
         '''Components'''
@@ -54,7 +61,7 @@ class Randy(wpilib.TimedRobot):
             self.joystick.setRumble(0, 1)
         else:
             self.joystick.setRumble(0, 0)
-        print(self.metabox.getEncoder())
+        #print(self.metabox.getEncoder())
 
         '''
         TODO: calibrate sparks
@@ -71,6 +78,28 @@ class Randy(wpilib.TimedRobot):
                          self.leftJ.getRawButton(4), # go to bottom
                          self.leftJ.getRawAxis(2),   # set angle of jaws
                          self.leftJ.getRawButton(8)) # calibrate elevator
+
+        if (self.leftJ.getRawButton(6) or self.leftJ.getRawButton(7)
+            if (self.leftJ.getRawButton(6))
+                self.frontLift.set(0.5)
+            if (self.leftJ.getRawButton(7))
+                self.frontLift.set(-0.5)
+        else:
+            self.frontLift.set(0)
+
+        if (self.leftJ.getRawButton(10) or self.leftJ.getRawButton(11)
+            if (self.leftJ.getRawButton(10))
+                self.backLift.set(0.5)
+            if (self.leftJ.getRawButton(11))
+                self.backLift.set(-0.5)
+        else:
+            self.backLift.set(0)
+
+        if (self.leftJ.getRawButton(8))
+            self.backWheel.set(1)
+        else:
+            self.backWheel.set(0)
+
 
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
@@ -93,7 +122,7 @@ class Randy(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
+        #self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         # reset gyro
         self.C.gyroS.reset()
         # reset encoder

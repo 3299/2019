@@ -6,6 +6,7 @@ from networktables import NetworkTables
 
 class Autonomous(object):
     def __init__(self, drive, encoder, gyro, metabox, driverStation):
+
         self.drive = drive
         self.encoder = encoder
         self.gyro = gyro
@@ -17,6 +18,7 @@ class Autonomous(object):
         self.jawsCalibrated = False
 
     def run(self):
+
         ##############
         # Get target #
         ##############
@@ -42,17 +44,17 @@ class Autonomous(object):
         ########
         # Move #
         ########
-        print(target)
+        #print(target)
         if ((target == 'L' and self.sd.getNumber('station', 1) == 1) or
              (target == 'R' and self.sd.getNumber('station', 1) == 3)):
             # go forward and dump cube
             if (self.state == 0):
-                if (self.drive.toTime(6, 0.3)):
+                if (self.drive.toTime(4, 0.3)):
                     self.state += 1
             if (self.state == 1):
                 if (self.metabox.openAuto(2)):
                     self.state += 1
         else:
             if (self.state == 0):
-                if (self.drive.toTime(6, 0.3)):
+                if (self.drive.toTime(4, 0.3)):
                     self.state += 1

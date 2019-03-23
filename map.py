@@ -10,9 +10,12 @@ class Map(object):
         self.backLeftM   = 1
         self.backRightM  = 5
         self.elevatorM   = 2
-        self.intakeM     = 6
-        self.jawsM       = 4
-        self.winchM      = 7
+        self.intakeM     = 3
+        #self.jawsM       = 4
+        #self.winchM      = 7
+        self.frontLift   = 4
+        self.backLift    = 6
+        self.backWheel = 2
 
         self.gyroS = 0
         self.arduino = 9
