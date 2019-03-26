@@ -97,7 +97,7 @@ class MetaBox(object):
         # (encoder is > 0 or value is > 0)
         # is calibrated
         if ((self.elevatorLimit.get() == True or value > 0) # if limit isn't activated
-             and (self.getEncoder() > 0 or value < 0)        # and encoder is more than 0
+             #and (self.getEncoder() > 0 or value < 0)        # and encoder is more than 0
              ):                 # and is calibrated
             self.elevatorM.set(value)
         else:

@@ -41,7 +41,7 @@ class Randy(wpilib.TimedRobot):
         # Joysticks
         self.joystick = wpilib.XboxController(0)
         self.leftJ = wpilib.Joystick(1)
-        self.Frontlift = Frontlift(self.C.frontLiftUp, self.C.frontLiftDown, self.C.backLiftUp, self.C.backLiftDown, self.C.backWheel)
+        self.Frontlift = Frontlift(self.C.frontLift, self.C.backLift, self.C.backWheel)
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 

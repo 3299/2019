@@ -5,13 +5,12 @@ from inits import Component
 from networktables import NetworkTables
 
 class Frontlift(object):
-    def __init__(self, frontLiftUp, frontLiftDown, backLiftUp, backLiftDown, backWheel):
-        self.frontLiftUp = frontLiftUp
-        self.backLiftUp = backLiftUp
+    def __init__(self, frontLift, backLift, backWheel):
+        self.frontLift = frontLift
+        self.backLift = backLift
         self.backWheel = backWheel
-        self.frontLiftDown = frontLiftDown
-        self.backLiftDown = backLiftDown
-    def run(self):
+
+    def run(self, frontLiftUp, frontLiftDown, backLiftUp, backLiftDown, backWheel):
         if (frontLiftUp):
             self.frontLift.set(1)
         elif (frontLiftDown):
@@ -28,7 +27,7 @@ class Frontlift(object):
             self.backWheel.set(0.5)
         else:
             self.backWheel.set(0)
-
+    '''
     def frontLiftUp(self, liftValue):
         if (self.frontLift.get() == True or liftValue < 0):
             self.frontLift.set(liftValue)
@@ -59,3 +58,4 @@ class Frontlift(object):
         else:
             self.frontLift.set(0)
             return False
+    '''
