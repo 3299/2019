@@ -10,8 +10,8 @@ class Map(object):
         self.backLeftM   = 1
         self.backRightM  = 5
         self.elevatorM   = 12
-        self.intakeM     = 3
-        #self.jawsM       = 4
+        self.intakeM     = 7
+        self.jawsM       = 10
         #self.winchM      = 7
         self.frontLift   = 4
         self.backLift    = 6
