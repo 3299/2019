@@ -14,7 +14,7 @@ class MetaBox(object):
         self.metaboxLimitS = metaboxLimitS
         self.jawsM = jawsM
         self.elevatorM = elevatorM
-        #self.intakeM = intakeM
+        self.intakeM = intakeM
         self.jawsSol = jawsSol
 
         self.elevatorTravel = 26.4

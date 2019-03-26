@@ -5,37 +5,57 @@ from inits import Component
 from networktables import NetworkTables
 
 class Frontlift(object):
-    def __init__(self, frontLift, backLift, backWheel):
-        self.frontLift = frontLift
-        self.backLift = backLift
+    def __init__(self, frontLiftUp, frontLiftDown, backLiftUp, backLiftDown, backWheel):
+        self.frontLiftUp = frontLiftUp
+        self.backLiftUp = backLiftUp
         self.backWheel = backWheel
-
+        self.frontLiftDown = frontLiftDown
+        self.backLiftDown = backLiftDown
     def run(self):
-        '''
-        if (self.leftJ.getRawButton(6) or self.leftJ.getRawButton(7)
-            if (self.leftJ.getRawButton(6))
-                self.frontLift.set(0.5)
-            if (self.leftJ.getRawButton(7))
-                self.frontLift.set(-0.5)
+        if (frontLiftUp):
+            self.frontLift.set(1)
+        elif (frontLiftDown):
+            self.frontLift.set(-1)
         else:
             self.frontLift.set(0)
-
-        if (self.leftJ.getRawButton(10) or self.leftJ.getRawButton(11)
-            if (self.leftJ.getRawButton(10))
-                self.backLift.set(0.5)
-            if (self.leftJ.getRawButton(11))
-                self.backLift.set(-0.5)
+        if (backLiftUp):
+            self.backLift.set(1)
+        elif (backLiftDown):
+            self.backLift.set(-1)
         else:
             self.backLift.set(0)
-
-        if (self.leftJ.getRawButton(8))
-            self.backWheel.set(1)
+        if (backWheel):
+            self.backWheel.set(0.5)
         else:
             self.backWheel.set(0)
-        '''
-    def frontLift(self, liftValue):
+
+    def frontLiftUp(self, liftValue):
         if (self.frontLift.get() == True or liftValue < 0):
             self.frontLift.set(liftValue)
+        else:
+            self.frontLift.set(0)
+            return False
+    def backLiftUp(self, liftValue):
+        if (self.frontLift.get() == True or liftValue < 0):
+            self.frontLift.set(liftValue)
+        else:
+            self.frontLift.set(0)
+            return False
+    def backWheel(self, liftValue):
+        if (self.frontLift.get() == True or liftValue < 0):
+            self.frontLift.set(liftValue)
+        else:
+            self.frontLift.set(0)
+            return False
+    def frontLiftDown(self, liftValue):
+        if (self.frontLift.get() == True or liftValue < 0):
+            self.frontLift.set(-liftValue)
+        else:
+            self.frontLift.set(0)
+            return False
+    def backLiftDown(self, liftValue):
+        if (self.frontLift.get() == True or liftValue < 0):
+            self.frontLift.set(-liftValue)
         else:
             self.frontLift.set(0)
             return False

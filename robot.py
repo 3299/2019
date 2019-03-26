@@ -17,6 +17,7 @@ from components.pdb import Power
 from components.Frontlift import Frontlift
 from networktables import NetworkTables
 
+
 class Randy(wpilib.TimedRobot):
     def robotInit(self):
 
@@ -40,7 +41,7 @@ class Randy(wpilib.TimedRobot):
         # Joysticks
         self.joystick = wpilib.XboxController(0)
         self.leftJ = wpilib.Joystick(1)
-        self.Frontlift = frontLift(self.C.frontLift, self.C.backLift, self.C.backWheel)
+        self.Frontlift = Frontlift(self.C.frontLiftUp, self.C.frontLiftDown, self.C.backLiftUp, self.C.backLiftDown, self.C.backWheel)
         # default to rainbow effect
         self.lights.run({'effect': 'rainbow'})
 
@@ -77,8 +78,11 @@ class Randy(wpilib.TimedRobot):
                          self.leftJ.getRawAxis(2),   # set angle of jaws
                          self.leftJ.getRawButton(8)) # calibrate elevator
 
-        self.Frontlift.run()
-
+        self.Frontlift.run(self.leftJ.getRawButton(6),
+                           self.leftJ.getRawButton(7),
+                           self.leftJ.getRawButton(11),
+                           self.leftJ.getRawButton(10),
+                           self.leftJ.getRawButton(8))
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
 
