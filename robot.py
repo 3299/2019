@@ -5,7 +5,7 @@ import wpilib
 
 from inits import Component
 import helpers
-#import cameras
+import cameras
 
 from components.chassis import Chassis
 
@@ -71,9 +71,9 @@ class Randy(wpilib.TimedRobot):
 
         # MetaBox
         self.metabox.run(self.leftJ.getY(),          # elevator rate of change
-                         self.leftJ.getRawButton(1), # run intake wheels in
-                         self.leftJ.getRawButton(3), # open jaws
-                         self.leftJ.getRawButton(2), # run intake wheels out
+                         self.leftJ.getRawButton(2), # run intake wheels in
+                         self.leftJ.getRawButton(1), # open jaws
+                         self.leftJ.getRawButton(3), # run intake wheels out
                          self.leftJ.getRawButton(4), # go to bottom
                          self.leftJ.getRawAxis(2),   # set angle of jaws
                          self.leftJ.getRawButton(8)) # calibrate elevator
