@@ -2,13 +2,14 @@
 Launches the camera streamers in a seperate
 thread to prevent the main robot thread
 from being overloaded.
-
-from components.cameraserver import CameraServer
-#import CameraServer
+'''
+#from components.cameraserver import CameraServer
+#import cscore
+from cscore import CameraServer
 
 def main():
     cs = CameraServer.getInstance()
-    cs.enableLogging()
+    #cs.enableLogging()
 
     usb1 = cs.startAutomaticCapture(dev=0)
     #usb2 = cs.startAutomaticCapture(dev=1)
@@ -18,6 +19,5 @@ def main():
     usb1.setResolution(160, 120)
     #usb2.setResolution(160, 120)
     #print("before forever")
-    cs.waitForever()
+    #cs.waitForever()
     #print("yay! it works kinda ish maybe")
-'''

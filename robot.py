@@ -47,7 +47,7 @@ class Randy(wpilib.TimedRobot):
 
         self.sd = NetworkTables.getTable('SmartDashboard')
         self.sd.putNumber('station', 2)
-        #wpilib.CameraServer.launch()
+        wpilib.CameraServer.launch()
         print("init works")
         #cameras.main()
         #print("USB1 status is" usb1.isConnected())
@@ -71,18 +71,21 @@ class Randy(wpilib.TimedRobot):
 
         # MetaBox
         self.metabox.run(self.leftJ.getY(),          # elevator rate of change
-                         self.leftJ.getRawButton(2), # run intake wheels in
+                         self.leftJ.getRawButton(3), # run intake wheels in
                          self.leftJ.getRawButton(1), # open jaws
-                         self.leftJ.getRawButton(3), # run intake wheels out
+                         self.leftJ.getRawButton(2), # run intake wheels out
                          self.leftJ.getRawButton(4), # go to bottom
                          self.leftJ.getRawAxis(2),   # set angle of jaws
-                         self.leftJ.getRawButton(8)) # calibrate elevator
+                         self.leftJ.getRawButton(8),  # calibrate elevator
+                         self.leftJ.getRawButton(9)) #set intake wheels to pull in
+        '''
 
         self.Frontlift.run(self.leftJ.getRawButton(6),
                            self.leftJ.getRawButton(7),
                            self.leftJ.getRawButton(11),
                            self.leftJ.getRawButton(10),
                            self.leftJ.getRawButton(8))
+        '''
         # Lights
         self.lights.setColor(self.driverStation.getAlliance())
 
@@ -104,6 +107,7 @@ class Randy(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
+        '''
         #self.lights.run({'effect': 'flash', 'fade': True, 'speed': 400})
         # reset gyro
         self.C.gyroS.reset()
@@ -115,9 +119,47 @@ class Randy(wpilib.TimedRobot):
 
         # reset state
         self.autonomousRoutine.state = 0
+        '''
+        # reset gyro
+        self.C.gyroS.reset()
+        # reset encoder
+        self.C.driveYEncoderS.reset()
 
     def autonomousPeriodic(self):
-        self.autonomousRoutine.run() # see autonomous.py
+        #self.autonomousRoutine.run() # see autonomous.py
+        """This function is called periodically during operator control."""
+        '''Components'''
+        averageDriveCurrent = self.power.getAverageCurrent([0, 1, 14, 15])
+        if (averageDriveCurrent > 8):
+            self.joystick.setRumble(0, 1)
+        else:
+            self.joystick.setRumble(0, 0)
+        #print(self.metabox.getEncoder())
+
+        '''
+        TODO: calibrate sparks
+        '''
+
+        # Drive
+        self.drive.run(self.joystick.getRawAxis(0), self.joystick.getRawAxis(1), self.joystick.getRawAxis(4))
+
+        # MetaBox
+        self.metabox.run(self.leftJ.getY(),          # elevator rate of change
+                         self.leftJ.getRawButton(3), # run intake wheels in
+                         self.leftJ.getRawButton(1), # open jaws
+                         self.leftJ.getRawButton(2), # run intake wheels out
+                         self.leftJ.getRawButton(4), # go to bottom
+                         self.leftJ.getRawAxis(2),   # set angle of jaws
+                         self.leftJ.getRawButton(8)) # calibrate elevator
+        '''
+        self.Frontlift.run(self.leftJ.getRawButton(6),
+                           self.leftJ.getRawButton(7),
+                           self.leftJ.getRawButton(11),
+                           self.leftJ.getRawButton(10),
+                           self.leftJ.getRawButton(8))
+        '''
+        # Lights
+        self.lights.setColor(self.driverStation.getAlliance())
 
     def test(self):
         # reset gyro

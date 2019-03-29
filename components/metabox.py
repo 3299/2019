@@ -32,7 +32,7 @@ class MetaBox(object):
         self.timer = wpilib.Timer()
         self.autoActionStarted = False
 
-    def run(self, heightRate, runIn, open, runOut, bottom, angle, calibrate):
+    def run(self, heightRate, runIn, open, runOut, bottom, angle, calibrate, secure):
         '''
         Intended to be called with a periodic loop
         and with button toggles.
@@ -40,8 +40,9 @@ class MetaBox(object):
 
         # if elevator is at limit switch
         self.calibrateAsync()
-
-        if (runIn):
+        if (secure):
+            self.intakeM.set(-0.1)
+        elif (runIn):
             self.intakeM.set(-1)
         elif (runOut):
             self.intakeM.set(1)
@@ -157,3 +158,10 @@ class MetaBox(object):
         else:
             self.jawsM.set(0)
             return True
+    def secure(self, value):
+        if (value < 0):
+            self.intakeM.set(value)
+            return True
+        else:
+            self.intakeM.set(0)
+            return False
